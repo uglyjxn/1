@@ -45,6 +45,7 @@
     ['#/karte/stern', '✦', 'Sternkarte', 'Der Nahbereich um Sol mit Entfernungen, Linien und Kolonien.'],
     ['#/karte/sonnensystem', '☉', 'Karte des Sonnensystems', 'Bahnen (logarithmisch), Sperrzone der Sonne und besiedelte Körper.'],
     ['#/karte/handel', '⇄', 'Handelsnetz', 'Alle Linien mit Flottenstärke und Reisezeit auf der Sternkarte.'],
+    ['#/karte/toi700', '✺', 'TOI-700-System', 'Alle vier Planeten des TOI-700-Systems maßstäblich mit habitabler Zone.'],
     ['#/karte/toi700d', '◐', 'TOI-700 d', 'Die drei Zonen der gebunden rotierenden Welt.'],
     ['#/konzerne', '⛓', 'Konzernnetz', 'Beteiligungen und Töchter der großen Konzerne, des Kontors und des Bundes.'],
     ['#/zeitleiste', '⏳', 'Zeitleiste', 'Alle Ereignisse der Dossiers und Ergänzungen, filterbar nach Epoche und Quelle.'],

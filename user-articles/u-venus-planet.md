@@ -83,6 +83,7 @@ Siehe auch: [[u-randkolonien-venus-und-tau-ceti-f-im-alltag|Randkolonien: Venus 
 - Die Oberfläche ist heiß (Einstrahlung 2,6), in der kühlen Höhenschicht aber erträglich: Schwebe-Städte wie auf der Venus (aufgewertet). ([[sternkarte-koloniewelten-2234-k3-sonderwelten|K3: Sonderwelten (Sternkarte und Koloniewelten)]])
 - Venus: Aerostat-Städte in 52–55 km Höhe, die Luft ist Tragegas. ([[u-randkolonien-venus-und-tau-ceti-f-im-alltag|Randkolonien, Venus und Tau Ceti f im Alltag]])
 - Beliebte Ziele sind Ross 128 b (atembare Luft, Weite) und die Erde (Naturreservate, Himal-Gürtel), dazu Luna (Kraterhotels), der Ceres-Freihafen und Venus-Aerostate als Luxusziel. ([[u-reisen-und-tourismus|Reisen und Tourismus]])
+- Alle Planeten liegen innerhalb der abgeleiteten Sternzone von ≈ 0,70 AE: Der Zugang ist wie bei Merkur und Venus subluminal ab der Sternzonengrenze (Schattenzone, Katalog: „Schatten“). ([[u-toi-700-system|TOI-700 (System)]])
 
 ## Quellen und verwandte Artikel
 

@@ -248,6 +248,8 @@ und unter Schutz zu stellen. Wer das als Entgegenkommen versteht, verweist auf d
 
 Siehe auch: [[u-fernlicht-affare|Fernlicht-Affäre]], [[u-fernziel-fonds-und-toi-700-d-arbeitshypothese|Fernziel-Fonds und TOI-700-d-Arbeitshypothese]], [[u-fernseite-array|Fernseite-Array]], [[toi-700-d-2234|TOI-700 d (Dossier)]].
 
+Siehe auch: [[u-toi-700-system|TOI-700 (System)]] mit Karte (Hilfsmittel, Karten, TOI-700-System), [[u-toi-700-b-welt|TOI-700 b]] und [[u-toi-700-c-welt|TOI-700 c]].
+
 ## Weitere Erwähnungen in anderen Artikeln
 
 - Atembare Luft haben nur drei Welten: Erde, Ross 128 b und seit 2235 TOI-700 d. ([[setting-zusammenfassung-2235-1-wo-die-menschen-leben|1. Wo die Menschen leben (Die Solarrepublik 2235 – kurz erklärt)]])

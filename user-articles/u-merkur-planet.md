@@ -79,6 +79,7 @@ Siehe auch: [[u-randkolonien-venus-und-tau-ceti-f-im-alltag|Randkolonien: Venus 
 - Einziger größerer Unfall ist die Havarie von 2169 im Vorläuferwerk bei Merkur, die zu strenger Mengenbuchführung (Zwei-Personen-Regel, Fernüberwachung) führte. ([[u-antimaterie-sicherheit-und-unfalle|Antimaterie: Sicherheit und Unfälle]])
 - Kollektorflotten bei Merkur fangen die ≈ 6,7-fache Sonnenenergie. ([[u-energieversorgung|Energieversorgung]])
 - Beispiele: die Gründerwoche auf Proxima b mit Saumsuppe; das Terrassenfest auf dem Mars; die Lichtwende auf dem Merkur. ([[u-feiertage-und-gedenkkultur|Feiertage und Gedenkkultur]])
+- Alle Planeten liegen innerhalb der abgeleiteten Sternzone von ≈ 0,70 AE: Der Zugang ist wie bei Merkur und Venus subluminal ab der Sternzonengrenze (Schattenzone, Katalog: „Schatten“). ([[u-toi-700-system|TOI-700 (System)]])
 
 ## Quellen und verwandte Artikel
 

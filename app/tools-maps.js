@@ -18,10 +18,10 @@
   }
   Tools.pages.karte = parts => {
     const which = parts[0] || 'stern';
-    const fn = { stern: starMap, sonnensystem: solarMap, handel: tradeMap, toi700d: toiMap }[which] || starMap;
+    const fn = { stern: starMap, sonnensystem: solarMap, handel: tradeMap, toi700: toiSystem, toi700d: toiMap }[which] || starMap;
     fn(parts[1]);
   };
-  const mapTabs = which => `<div class="subtabs">${[['stern', 'Sternkarte'], ['handel', 'Handelsnetz'], ['sonnensystem', 'Sonnensystem'], ['toi700d', 'TOI-700 d']].map(([k, n]) => `<a class="${k === which ? 'on' : ''}" href="#/karte/${k}">${n}</a>`).join('')}</div>`;
+  const mapTabs = which => `<div class="subtabs">${[['stern', 'Sternkarte'], ['handel', 'Handelsnetz'], ['sonnensystem', 'Sonnensystem'], ['toi700', 'TOI-700-System'], ['toi700d', 'TOI-700 d']].map(([k, n]) => `<a class="${k === which ? 'on' : ''}" href="#/karte/${k}">${n}</a>`).join('')}</div>`;
 
   function starMap(mode) {
     const full = mode === 'voll';
@@ -70,6 +70,45 @@
     const pl = bodies.map(x => { const a = ang[x.name] * Math.PI / 180, rr = r(x.au), px = cx + Math.cos(a) * rr, py = cy + Math.sin(a) * rr, rad = x.name === 'Erde' ? 14 : Math.max(5, Math.min(13, 4 + Math.sqrt((pop[x.name] || 0) / 1e6))); const nt = note[x.name] || '';
       return svgLink(link[x.name], `<circle cx="${px}" cy="${py}" r="${rad}" class="sn ${pop[x.name] ? 'terr' : 'vm'}"/><text x="${px}" y="${py - rad - 4}" text-anchor="middle" class="sl">${x.name}</text><text x="${px}" y="${py + rad + 12}" text-anchor="middle" class="sd">${fmt(x.au)} AE${x.std ? '*' : ''}${nt ? ' · ' + esc(nt) : ''}</text><title>${x.name}: ${fmt(x.au)} AE${x.std ? ' (Standardwert)' : ' (Dossier)'}${nt ? ' · ' + nt : ''}</title>`); }).join('');
     b.innerHTML = mapTabs('sonnensystem') + `<div class="mapbox"><svg viewBox="0 0 1000 880" class="map"><circle cx="${cx}" cy="${cy}" r="9" class="sn sol"/>${belt}${orbits}${zone}${pl}</svg></div><p class="note">* astronomischer Standardwert. Die Dossier-Zeitleiste nennt zudem Ganymed (seit 2147), Kallisto (2131), Titan (2166) als besiedelte Monde.</p>`;
+  }
+
+
+  // ---------- TOI-700-System (Draufsicht, linearer Maßstab) ----------
+  function toiSystem() {
+    const b = Tools.begin('Karte des TOI-700-Systems', { tab: 'Karte', sub: 'Draufsicht, Bahnradien maßstäblich (linear in AE); die Winkelpositionen und Planetengrößen sind schematisch. Quelle: Dossier „TOI-700 d“, Abschnitt „Das System“. Mit „abgeleitet“ markierte Werte sind aus den Dossierwerten gerechnet.' });
+    const star = { m: 0.42, teff: '≈ 3.480 K', cls: 'M2-Zwerg', ly: 101.4, hz: [0.145, 0.26], dS: 0.87, dA: 0.163 };
+    const Lum = star.dS * star.dA * star.dA;                     // L/L☉, aus Einstrahlung und Bahn von d
+    const S = a => Lum / (a * a);
+    const P = [
+      { id: 'b', a: 0.068, d: 10.0, note: 'Glutwelt, keine Nutzung', cls: 'vm', ang: 215, href: 'u-toi-700-b-welt', ang0: 0 },
+      { id: 'c', a: 0.093, d: 16.1, note: 'Gasreicher Mini-Neptun, keine Nutzung', cls: 'vm', ang: 320, href: 'u-toi-700-c-welt' },
+      { id: 'e', a: 0.134, d: 27.8, note: 'K2 · Einstrahlung 1,27 · 0,9 g · Fernziel-Welt des Kontors', cls: 'kz', ang: 100, href: 'u-toi-700-e-welt' },
+      { id: 'd', a: 0.163, d: 37.4, note: 'K1 (wird neu bewertet) · Einstrahlung 0,87 · atembar und belebt', cls: 'terr', ang: 20, href: 'u-toi-700-d-welt' },
+    ];
+    const cx = 500, cy = 430, sc = 1250;
+    const hz = `<circle cx="${cx}" cy="${cy}" r="${(star.hz[0] + star.hz[1]) / 2 * sc}" fill="none" stroke="rgba(63,176,166,.16)" stroke-width="${(star.hz[1] - star.hz[0]) * sc}"/><text x="${cx}" y="${cy - star.hz[1] * sc - 8}" text-anchor="middle" class="zl" style="fill:#3fb0a6">Habitable Zone 0,145 – 0,26 AE</text>`;
+    const orbs = P.map(p => `<circle cx="${cx}" cy="${cy}" r="${p.a * sc}" class="orb"/>`).join('');
+    const pls = P.map(p => { const a = p.ang * Math.PI / 180, x = cx + Math.cos(a) * p.a * sc, y = cy + Math.sin(a) * p.a * sc, r = p.id === 'c' ? 13 : p.id === 'b' ? 8 : 10;
+      return `<a href="#/a/${p.href}"><circle cx="${x}" cy="${y}" r="${r}" class="sn ${p.cls}"/><text x="${x}" y="${y - r - 6}" text-anchor="middle" class="sl">TOI-700 ${p.id}</text><text x="${x}" y="${y + r + 14}" text-anchor="middle" class="sd">${fmt(p.a.toFixed(3))} AE · ${fmt(p.d)} d</text><title>TOI-700 ${p.id}: ${p.note}</title></a>`; }).join('');
+    const scale = `<line x1="${cx - 0.1 * sc}" y1="${cy + 0.3 * sc + 20}" x2="${cx}" y2="${cy + 0.3 * sc + 20}" stroke="#8f9ba7" stroke-width="2"/><text x="${cx - 0.05 * sc}" y="${cy + 0.3 * sc + 38}" text-anchor="middle" class="sd">0,1 AE (≈ 15 Mio. km)</text>`;
+    const row = p => `<tr><td><a href="#/a/${p.href}"><b>TOI-700 ${p.id}</b></a></td><td>${fmt(p.a.toFixed(3))} AE</td><td>${fmt(p.d)} d</td><td>${fmt(S(p.a).toFixed(2))}${p.id === 'd' ? ' (Dossier 0,87)' : p.id === 'e' ? ' (Dossier 1,27)' : ''}</td><td>${p.id === 'e' ? 'laut Dossier-Text ja; der Bahnradius 0,134 AE liegt aber knapp innerhalb der angegebenen Grenze 0,145 AE' : p.a >= star.hz[0] && p.a <= star.hz[1] ? 'ja' : 'nein (zu heiß)'}</td><td>${esc(p.note)}</td></tr>`;
+    b.innerHTML = mapTabs('toi700') + `<div class="mapbox"><svg viewBox="0 0 1000 880" class="map">${hz}${orbs}<circle cx="${cx}" cy="${cy}" r="9" class="sn sol"/><text x="${cx}" y="${cy + 24}" text-anchor="middle" class="sl">TOI-700 (M2)</text>${pls}${scale}</svg></div>
+      <div class="legend2"><span><i class="sn terr"></i>d: atembar im Ring, belebt</span><span><i class="sn kz"></i>e: Fernziel-Welt</span><span><i class="sn vm"></i>b, c: ohne Nutzen</span><span>Klick auf einen Planeten öffnet den Artikel</span></div>
+      <h2 class="sec">Die vier Planeten</h2>
+      <div class="tablewrap"><table class="wikitable"><thead><tr><th>Planet</th><th>Bahnradius</th><th>Umlauf</th><th>Einstrahlung (Erde = 1, abgeleitet)</th><th>Habitable Zone</th><th>Einordnung (Dossier)</th></tr></thead><tbody>${P.slice().reverse().reverse().map(row).join('')}</tbody></table></div>
+      <h2 class="sec">Der Stern</h2>
+      <div class="tablewrap"><table class="wikitable"><tbody>
+        <tr><th>Typ</th><td>${star.cls}, Teff ${star.teff}, ruhig (eine der niedrigsten Flare-Raten aller M-Zwerge im Katalog)</td></tr>
+        <tr><th>Masse</th><td>≈ 0,42 M☉</td></tr>
+        <tr><th>Entfernung</th><td>101,4 Lichtjahre (Sternbild Dorado)</td></tr>
+        <tr><th>Leuchtkraft (abgeleitet)</th><td>≈ ${fmt(Lum.toFixed(3))} L☉ (aus Einstrahlung 0,87 bei 0,163 AE)</td></tr>
+        <tr><th>Sternzone (abgeleitet)</th><td>≈ ${fmt((0.93 * Math.cbrt(star.m)).toFixed(2))} AE (Näherung R ∝ M<sup>1/3</sup> mit 0,93 AE für Sol): alle vier Planeten liegen darin, der Zugang ist wie bei Merkur und Venus subluminal.</td></tr>
+        <tr><th>Bahnen (Kontrolle)</th><td>Die Umlaufzeiten aller vier Planeten passen zu 0,42 M☉ (3. Keplersches Gesetz, abgeleitet).</td></tr>
+        <tr><th>Hinweis zu e</th><td>Das Dossier zählt e zur habitablen Zone, nennt aber die Grenzen 0,145 – 0,26 AE (Abbildung 1) und für e 0,134 AE; e liegt demnach am heißen Rand oder knapp außerhalb („heißer Bruder von d“).</td></tr>
+        <tr><th>Maßstab</th><td>Das gesamte System (äußerster Planet bei 0,163 AE) läge weit innerhalb der Merkurbahn (0,387 AE).</td></tr>
+      </tbody></table></div>
+      <p class="note">Weitere Karte: <a href="#/karte/toi700d">TOI-700 d: Zonen der gebunden rotierenden Welt</a>. Artikel: <a href="#/a/u-toi-700-system">TOI-700 (System)</a>.</p>`;
+    window.__sp.enhance(b);
   }
 
   // ---------- TOI-700 d ----------

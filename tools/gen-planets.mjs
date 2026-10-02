@@ -417,6 +417,7 @@ for (const name of candidates) {
       `Siehe auch: ${link('u-fernlicht-affare', 'Fernlicht-Affäre')}, ${link('u-fernziel-fonds-und-toi-700-d-arbeitshypothese', 'Fernziel-Fonds und TOI-700-d-Arbeitshypothese')}, ${link('u-fernseite-array', 'Fernseite-Array')}, ${link('toi-700-d-2234', 'TOI-700 d (Dossier)')}.`,
     );
   }
+  if (/^TOI-700 [de]$/.test(name)) parts.push(`Siehe auch: ${link('u-toi-700-system', 'TOI-700 (System)')} mit Karte (Hilfsmittel, Karten, TOI-700-System), ${link('u-toi-700-b-welt', 'TOI-700 b')} und ${link('u-toi-700-c-welt', 'TOI-700 c')}.`);
   const title = wTitle(name.replace(/\s*\(Monde\)/, ''));
   emit(isMoons ? bare + ' (Monde)' : title, 'Welten · Koloniewelten (Kandidaten)', parts, { src, re: new RegExp('\\b' + bare.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b'), noMentions: name === 'TOI-700 d' ? false : false });
 }

@@ -36,6 +36,8 @@ Als Kolonisationskandidaten sind Gasriesen ausgeschlossen (keine Oberfläche, St
 - Yaku erkundet seit 2232 die Eisvorkommen der Kuipergürtel-Körper jenseits von Neptun und hat dafür ein Konsortium gegründet. ([[firmenverzeichnis-2234-yaku|Yaku (Firmenverzeichnis und Marktmacht)]])
 - Die Schöpfstationen hängen an Saturn, Uranus, Neptun und Jupiter; Tender, die sogenannten Tränke-Tender, bringen den Brennstoff zu den Sammelstellen. ([[firmenverzeichnis-2234-ghawwas|Ghawwas (Firmenverzeichnis und Marktmacht)]])
 - Die Gefahr sitzt in den Stationen. 2203 riss ein Sturm auf Neptun eine Schöpfstation aus der Verankerung; 34 Menschen starben. ([[firmenverzeichnis-2234-ghawwas|Ghawwas (Firmenverzeichnis und Marktmacht)]])
+- TOI-700 c ist der zweite Planet des TOI-700 (System) und laut Dossier ein gasreicher Mini-Neptun ohne Nutzen. ([[u-toi-700-c-welt|TOI-700 c (Welt)]])
+- Die Dossiers behandeln TOI-700 c nur als Teil des Systems („Gasreicher Mini-Neptun, keine Nutzung“). ([[u-toi-700-c-welt|TOI-700 c (Welt)]])
 
 ## Quellen und verwandte Artikel
 
