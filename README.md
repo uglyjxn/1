@@ -55,3 +55,6 @@ Im Menü „Hilfsmittel“ (links) oder unter `#/tools`:
 
 Die Daten dafür erzeugt `node tools/build-tools.mjs` aus den Dossier-Artikeln (`app/data/articles.js`) und den kuratierten Angaben in `tools/curated.mjs`.
 Der MCP-Server hat dazu die Werkzeuge `glossary`, `timeline` und `register`.
+
+## Letzte Änderungen
+Die Startseite hat den Tab „Letzte Änderungen“ (`#/aenderungen`): neue und bearbeitete eigene Artikel nach Datei-Zeitstempel sowie das Programm-Changelog (`app/changelog.js`).

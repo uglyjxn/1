@@ -216,6 +216,37 @@
     store.set('visited', v.slice(0, 60));
   }
 
+  function homeTabs(on) {
+    return `<div class="tabs home-tabs"><a class="tab${on === 'home' ? ' active' : ''}" href="#/">Übersicht</a><a class="tab${on === 'changes' ? ' active' : ''}" href="#/aenderungen">Letzte Änderungen</a></div>`;
+  }
+
+  function renderChanges() {
+    current = { type: 'home' };
+    document.title = 'Letzte Änderungen – Solarpedia';
+    const ud = window.__userData || { articles: [], edits: [] };
+    const fmt = ms => new Date(ms).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const items = [];
+    for (const x of ud.articles) { const a = byId.get('u-' + x.id.replace(/^u-/, '')) || byId.get(x.id); if (a) items.push({ kind: 'neu', a, mtime: x.mtime }); }
+    for (const x of ud.edits) { const a = byId.get(x.id); if (a) items.push({ kind: 'bearbeitet', a, mtime: x.mtime, n: (x.ops || []).length }); }
+    items.sort((p, q) => q.mtime - p.mtime);
+    const filter = store.get('chgFilter', 'alle');
+    const shown = items.filter(i => filter === 'alle' || i.kind === filter).slice(0, 100);
+    const nNew = items.filter(i => i.kind === 'neu').length, nEdit = items.length - nNew;
+    const row = i => `<li><span class="chg-date">${fmt(i.mtime)}</span><span class="chg-badge ${i.kind}">${i.kind}</span><a href="#/a/${i.a.id}">${esc(i.a.title)}</a>${i.n ? `<span class="muted"> – ${i.n} Änderung${i.n > 1 ? 'en' : ''}</span>` : ''}<div class="chg-lead muted">${esc(leadText(i.a, 140))}</div></li>`;
+    const log = window.CHANGELOG || [];
+    page.innerHTML = `${homeTabs('changes')}
+      <h1 class="firstHeading">Letzte Änderungen</h1>
+      <div class="subtitle">${nNew} neue Artikel · ${nEdit} bearbeitete Artikel</div>
+      <h2 class="sec"><span class="mw-headline">Artikel</span></h2>
+      <div class="subtabs">${['alle', 'neu', 'bearbeitet'].map(f => `<a href="#" data-f="${f}" class="${f === filter ? 'on' : ''}">${f[0].toUpperCase() + f.slice(1)}</a>`).join('')}</div>
+      ${shown.length ? `<ul class="chg-list">${shown.map(row).join('')}</ul>` : '<p class="muted">Keine eigenen Artikel oder Bearbeitungen gefunden.</p>'}
+      <h2 class="sec"><span class="mw-headline">Änderungen an der Solarpedia</span></h2>
+      <ul class="chg-list">${log.map(e => `<li><span class="chg-date">${e.date.split('-').reverse().join('.')}</span><b>${esc(e.title)}</b><div class="chg-lead muted">${esc(e.text)}</div></li>`).join('')}</ul>`;
+    $('#toc-portlet').hidden = true; $('#tools-portlet').hidden = true;
+    page.querySelectorAll('.subtabs a').forEach(el => el.addEventListener('click', e => { e.preventDefault(); store.set('chgFilter', el.dataset.f); renderChanges(); }));
+    afterRender();
+  }
+
   function renderHome() {
     current = { type: 'home' };
     document.title = 'Solarpedia';
@@ -226,7 +257,7 @@
     const visited = store.get('visited', []).map(id => byId.get(id)).filter(Boolean).slice(0, 8);
     const nArt = W.articles.length;
     const nWords = W.articles.reduce((n, a) => n + wordCount(a), 0);
-    page.innerHTML = `
+    page.innerHTML = `${homeTabs('home')}
       <div class="hero">
         <div class="hero-sun" aria-hidden="true">☉</div>
         <h1>Willkommen bei <b>Solar</b>pedia</h1>
@@ -351,6 +382,7 @@
       const a = byId.get(parts[1]);
       return a ? renderArticle(a, parts[2], hl ? Search.hlTerms(hl) : null) : renderNotFound(parts[1]);
     }
+    if (parts[0] === 'aenderungen') return renderChanges();
     if (parts[0] === 'index') return renderIndex();
     if (parts[0] === 'search') return renderSearch(decodeURIComponent(parts.slice(1).join('/')));
     if (parts[0] === 'random') {

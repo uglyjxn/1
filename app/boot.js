@@ -3,6 +3,7 @@
   const load = async () => { try { return await window.desktop.userArticles(); } catch { return { articles: [], edits: [] }; } };
   const sig = d => JSON.stringify([d.articles.map(x => [x.id, x.md.length, x.mtime]), d.edits.map(x => [x.id, x.mtime])]);
   const data = window.desktop ? await load() : { articles: [], edits: [] };
+  window.__userData = data;
   window.__userSig = sig(data);
   window.__userBroken = window.UserArticles.merge(window.WIKI, data.articles, data.edits).broken;
   const s = document.createElement('script');
