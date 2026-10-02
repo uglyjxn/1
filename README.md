@@ -45,3 +45,13 @@ Die installierte App liest eigene Artikel aus `<Benutzerordner>\Solarpedia\user-
 ### Mitgelieferte Ergänzungsartikel
 Der Ordner `user-articles/` enthält 94 Ergänzungsartikel (Geschichte, Politik, Technik, Gesellschaft, Wirtschaft u. a.) und 15 Bearbeitungen bestehender Dossier-Artikel (`_edits/`).
 Beim Start von `npm start` werden sie automatisch geladen. Die Kategorie-Etiketten „Kanon“, „Entwurf“ und „Gerücht“ zeigen den Status; siehe den Artikel „Kanon-Status und Quellenhinweise“.
+
+## Hilfsmittel (Register, Karten, Diagramme)
+Im Menü „Hilfsmittel“ (links) oder unter `#/tools`:
+- **Glossar** (114 Begriffe mit Quelle), **Register** (Personen, Welten, Firmen, Schiffsklassen, Gesetze, Behörden, Dossiers), **Organigramm** der Regierung,
+- **Karten**: Sternkarte, Handelsnetz, Sonnensystem (logarithmisch), TOI-700 d; **Konzernnetz**; **Zeitleiste**; **Diagramme**; **Rechner**; Kategorien/A–Z; Lesezeichen; Qualitätsübersicht.
+- In Artikeln: Vorschau beim Überfahren von Links, sortier- und filterbare Tabellen, Verknüpfungsnetz, Merken, Zitieren, Schriftgröße.
+- Suche mit Tippfehler-Toleranz, Wortformen, Synonymen, Phrasen in Anführungszeichen und Teiltreffern.
+
+Die Daten dafür erzeugt `node tools/build-tools.mjs` aus den Dossier-Artikeln (`app/data/articles.js`) und den kuratierten Angaben in `tools/curated.mjs`.
+Der MCP-Server hat dazu die Werkzeuge `glossary`, `timeline` und `register`.

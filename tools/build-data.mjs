@@ -104,7 +104,7 @@ function cellHtml(items) {
     if (!out) { out = h; continue; }
     const pw = unesc(stripTags(out)).split(/\s+/).pop(), nw = unesc(stripTags(h)).split(/\s+/)[0];
     const clean = w => w.replace(/^[„"(]+|[.,;:!?)“"]+$/g, '');
-    if (nw && /^\p{Ll}/u.test(nw) && ((vocab.has(clean(pw + nw)) && (!vocab.has(clean(pw)) || clean(nw).length <= 2)) || (/^<b>/.test(out) && /^<b>/.test(h) && !/\s/.test(clean(nw))))) out = out.replace(/<\/([bi])>$/, '') + h.replace(/^<([bi])>/, '');
+    if (nw && !/^(und|oder|für|der|die|das|des|von|im|in|zu|mit|an|auf|bei|aus)$/.test(nw) && /^\p{Ll}/u.test(nw) && ((vocab.has(clean(pw + nw)) && (!vocab.has(clean(pw)) || clean(nw).length <= 2)) || (/^<b>/.test(out) && /^<b>/.test(h) && !/\s/.test(clean(nw))))) out = out.replace(/<\/([bi])>$/, '') + h.replace(/^<([bi])>/, '');
     else out += ' ' + h;
   }
   return out.replace(/<\/b>\s*<b>/g, ' ').trim();

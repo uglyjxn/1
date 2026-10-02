@@ -157,6 +157,54 @@ server.tool('delete_article', 'Löscht einen eigenen Artikel (nur Artikel, die m
     fs.unlinkSync(f); refresh(); return text(`Gelöscht: ${id}`);
   });
 
+
+// ---------- Hilfsmittel-Daten (Glossar, Register, Zeitleiste) ----------
+const toolCtx = { window: {} };
+vm.runInNewContext(fs.readFileSync(path.join(here, '../app/data/tools-data.js'), 'utf8'), toolCtx);
+const TOOLS = toolCtx.window.TOOLS;
+const stripT = h => dec(String(h || '').replace(/<[^>]+>/g, ''));
+function timelineEvents() {
+  const ids = [...TOOLS.timelineSources, 'u-zeitleiste-der-solarrepublik'];
+  const ev = [];
+  for (const id of ids) { const a = byId.get(id); if (!a) continue; for (const b of a.blocks) if (b.t === 'table') { const head = b.head.map(stripT).map(x => x.toLowerCase()); const yi = head.findIndex(h => /jahr|zeitpunkt/.test(h)), ei = head.findIndex(h => /ereignis/.test(h)), si = head.findIndex(h => /status/.test(h)); if (yi < 0 || ei < 0) continue; for (const r of b.rows) { const y = stripT(r[yi]); const m = y.match(/\d{4}/); ev.push({ y, year: m ? +m[0] : /2000er/.test(y) ? 2005 : null, text: stripT(r[ei]), status: si >= 0 ? stripT(r[si]) : (a.user ? 'Entwurf' : 'Dossier') }); } } }
+  const seen = new Map();
+  for (const e of ev) { if (e.year == null) continue; const k = e.y + '|' + fold(e.text).replace(/[^a-z0-9]/g, '').slice(0, 24); const o = seen.get(k); if (!o || e.text.length > o.text.length) seen.set(k, e); }
+  return [...seen.values()].sort((a, b) => a.year - b.year);
+}
+
+server.tool('glossary', 'Schlägt Begriffe im Glossar der Solarpedia nach (kurze, quellengenaue Definitionen). Ohne term: alle Begriffe.',
+  { term: z.string().optional().describe('Begriff oder Teil davon') },
+  async ({ term }) => {
+    const q = term ? fold(term) : '';
+    const hits = TOOLS.glossary.filter(g => !q || fold(g.term).includes(q) || fold(g.def).includes(q));
+    if (!hits.length) return text('Kein Glossareintrag gefunden.');
+    return text(hits.slice(0, 40).map(g => `- **${g.term}**${g.k === 'e' ? ' (Ergänzung)' : ''}: ${g.def} (Quelle: ${g.src})`).join('\n'));
+  });
+
+server.tool('timeline', 'Zeitleiste aller datierten Ereignisse (Dossiers und Ergänzungen), filterbar nach Jahr und Stichwort.',
+  { from: z.number().optional(), to: z.number().optional(), query: z.string().optional() },
+  async ({ from, to, query }) => {
+    refresh();
+    const q = query ? fold(query) : '';
+    const ev = timelineEvents().filter(e => (from == null || e.year >= from) && (to == null || e.year <= to) && (!q || fold(e.text).includes(q)));
+    return text(ev.length ? ev.map(e => `- ${e.y}: ${e.text} [${e.status}]`).join('\n') : 'Keine Ereignisse.');
+  });
+
+server.tool('register', 'Register der Solarpedia: persons (Personen), companies (Firmen), ships (Schiffsklassen), laws (Gesetze), worlds (Welten), ministries (Ministerien und Ämter), ownership (Beteiligungen der Konzerne).',
+  { kind: z.enum(['persons', 'companies', 'ships', 'laws', 'worlds', 'ministries', 'ownership']) },
+  async ({ kind }) => {
+    refresh();
+    const T = TOOLS; let rows = [];
+    if (kind === 'persons') { rows = T.persons.map(p => `- ${p.name}: ${p.role} (${p.org})`); for (const a of articles) if (a.user && /^Person/i.test(a.category || '')) rows.push(`- ${a.title} (Ergänzung) [[${a.id}]]`); }
+    if (kind === 'companies') rows = T.companies.map(c => `- ${c.name} | ${c.sector} | ${c.form} | seit ${c.since} | ${c.staff} Beschäftigte | ${c.revenue} Mrd. Cr | ${c.market}`);
+    if (kind === 'ships') rows = T.ships.map(s => `- ${s.name}: ${s.drive}, ${s.category}, ${s.length}, Crew ${s.crew}, ${s.key}`);
+    if (kind === 'laws') rows = T.laws.map(l => `- ${l.abbr}: ${l.name} (Teil ${l.part}; ${l.status})`);
+    if (kind === 'worlds') rows = T.worlds.map(w => `- ${w.name}: ${w.status}, ${w.popText}, seit ${w.since}, ${w.g} g`);
+    if (kind === 'ministries') rows = T.ministries.map(m => `- ${m.name}: ${m.task}. Stellen: ${m.agencies.join('; ')}`);
+    if (kind === 'ownership') rows = T.ownership.map(o => `- ${o.owner} → ${o.sub}: ${o.w}`);
+    return text(rows.join('\n'));
+  });
+
 const editFile = id => path.join(userDir, '_edits', path.basename(id) + '.json');
 const OPS = z.array(z.object({
   op: z.enum(['replace_text', 'append', 'replace_section', 'delete_section']).describe('replace_text: find+replace; append: content (+ optional heading = ans Ende dieses Abschnitts, sonst Artikelende); replace_section: heading+content (Überschrift bleibt); delete_section: heading'),

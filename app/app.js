@@ -177,7 +177,7 @@
     const related = [...(backlinks.get(a.id) || [])].map(id => byId.get(id)).filter(Boolean).sort((x, y) => x.title.localeCompare(y.title, 'de'));
     const hasBody = a.blocks.length > 0;
     page.innerHTML = `
-      <div class="tabs"><span class="tab active">Artikel</span><span class="tab-spacer"></span>${a.pdf ? `<a class="tab" href="#" data-act="pdf" title="Das Original-Dossier als PDF öffnen">PDF öffnen ↗</a>` : ''}</div>
+      <div class="tabs"><span class="tab active">Artikel</span><span class="tab-spacer"></span><a class="tab" href="#" data-act="bookmark" id="bm-btn" title="Artikel merken">${isBookmarked(a.id) ? '★ Gemerkt' : '☆ Merken'}</a><a class="tab" href="#" data-act="cite" title="Zitierweise kopieren">Zitieren</a><a class="tab" href="#" data-act="fs-" title="Schrift kleiner">A−</a><a class="tab" href="#" data-act="fs+" title="Schrift größer">A+</a>${a.pdf ? `<a class="tab" href="#" data-act="pdf" title="Das Original-Dossier als PDF öffnen">PDF öffnen ↗</a>` : ''}</div>
       ${crumbs(a)}
       <h1 id="top" class="firstHeading">${esc(a.title)}</h1>
       <div class="subtitle">${a.category ? `<span class="chip">${esc(a.user ? a.category : a.category.charAt(0) + a.category.slice(1).toLowerCase())}</span> ` : ''}${kindLabel ? `<span class="chip alt">${kindLabel}</span> ` : ''}${a.edited ? '<span class="chip warn" title="Dieser Artikel wurde nachträglich bearbeitet">Bearbeitet</span> ' : ''}${subtitle}</div>
@@ -188,6 +188,7 @@
         ${childList(a)}
       </div>
       ${siblingNav(a)}
+      <details class="netbox" id="netbox" data-id="${a.id}"><summary>Verknüpfungsnetz dieses Artikels</summary><div id="net"></div></details>
       ${related.length ? `<section class="related"><h2 class="sec"><span class="mw-headline">Verweise auf diesen Artikel</span></h2><ul class="cols">${related.slice(0, 60).map(r => `<li><a href="#/a/${r.id}">${esc(r.title)}</a></li>`).join('')}</ul></section>` : ''}
       <div class="catlinks"><b>Dossier:</b> <a href="#/a/${root.id}">${esc(root.title)}</a>${a.ref && a.ref !== 'Rechtsbuch' ? ` · <span>${esc(a.ref)}</span>` : ''} · <span>${wordCount(a).toLocaleString('de-DE')} Wörter</span></div>`;
     document.title = `${a.title} – Solarpedia`;
@@ -198,6 +199,7 @@
     $('#pdf-link').parentElement.hidden = !a.pdf;
     if (hl && hl.length) applyHighlight($('#content'), hl);
     setupSpy();
+    enhanceTables(page);
     addVisited(a);
     afterRender(anchor, hl && hl.length);
   }
@@ -211,7 +213,7 @@
   function addVisited(a) {
     const v = store.get('visited', []).filter(id => id !== a.id);
     v.unshift(a.id);
-    store.set('visited', v.slice(0, 12));
+    store.set('visited', v.slice(0, 60));
   }
 
   function renderHome() {
@@ -230,7 +232,7 @@
         <h1>Willkommen bei <b>Solar</b>pedia</h1>
         <p>Das Nachschlagewerk zur Solarrepublik – <b>${nArt.toLocaleString('de-DE')}</b> Artikel aus <b>${W.docs.length}</b> Dossiers, mit Querverweisen, Volltextsuche und dem vollständigen Solaren Rechtsbuch.</p>
         <form id="hero-search" autocomplete="off"><input type="search" placeholder="Wonach suchst du? z. B. Wellenantrieb, Saumland, Sperrzone …" aria-label="Suche"><button type="submit">Suchen</button></form>
-        <div class="hero-links"><a href="#/random">Zufälliger Artikel</a> · <a href="#/index">Alle Artikel</a> · <a href="#/a/setting-zusammenfassung-2235">Kurzüberblick lesen</a></div>
+        <div class="hero-links"><a href="#/random">Zufälliger Artikel</a> · <a href="#/index">Alle Artikel</a> · <a href="#/a/setting-zusammenfassung-2235">Kurzüberblick lesen</a> · <a href="#/tools">Hilfsmittel</a></div>
       </div>
       <div class="home-grid">
         <section class="box feat">
@@ -245,6 +247,7 @@
           ${visited.length ? `<ul class="plain">${visited.map(v => `<li><a href="#/a/${v.id}">${esc(v.title)}</a></li>`).join('')}</ul>` : '<p class="muted">Noch nichts gelesen – wähle unten ein Dossier.</p>'}
         </section>
       </div>
+      ${window.Tools ? `<h2 class="sec home-h"><span class="mw-headline">Hilfsmittel</span></h2><div class="toolrow">${Tools.hubList.slice(0, 10).map(t => `<a href="${t[0]}"><span>${t[1]}</span>${t[2]}</a>`).join('')}</div>` : ''}
       <h2 class="sec home-h"><span class="mw-headline">Die Dossiers</span></h2>
       <div class="cards">${W.docs.map(d => `
         <a class="card" href="#/a/${d.id}">
@@ -290,13 +293,14 @@
     current = { type: 'search', q };
     document.title = `Suche: ${q} – Solarpedia`;
     const t0 = performance.now();
-    const { terms, results } = Search.search(q);
+    const { terms, results, partial, corrections } = Search.search(q);
     const ms = Math.round(performance.now() - t0);
     const list = results.slice(0, shown);
     page.innerHTML = `
       <h1 class="firstHeading">Suchergebnisse</h1>
       <form id="page-search" class="page-search" autocomplete="off"><input type="search" value="${esc(q)}" aria-label="Suche"><button type="submit">Suchen</button></form>
-      <div class="subtitle">${results.length ? `<b>${results.length}</b> Artikel für „${esc(q)}“ gefunden (${ms} ms)` : `Keine Treffer für „${esc(q)}“`}</div>
+      <div class="subtitle">${results.length ? `<b>${results.length}</b> Artikel für „${esc(q)}“ gefunden (${ms} ms)${partial ? ' – <b>Teiltreffer</b>: nicht alle Suchwörter kommen gemeinsam vor' : ''}` : `Keine Treffer für „${esc(q)}“`}</div>
+      ${corrections && corrections.length ? `<div class="didyou">Meintest du: ${corrections.map(c => `<a href="#/search/${encodeURIComponent(q.replace(new RegExp(c.from, 'i'), c.to))}">${esc(c.to)}</a>`).join(', ')}?</div>` : ''}
       ${!results.length ? '<p>Tipps: Kürzere Wortteile versuchen (die Suche findet auch Teilwörter), Umlaute sind egal, mehrere Wörter werden mit UND verknüpft.</p>' : ''}
       <ol class="results">${list.map(r => {
         const a = r.a, root = docRoot.get(a.doc);
@@ -314,7 +318,7 @@
 
   // ---------- Hervorhebung ----------
   function applyHighlight(root, hl) {
-    const ts = Search.terms(hl.join(' '));
+    const ts = hl;
     if (!ts.length) return;
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: n => n.nodeValue.trim() && !n.parentElement.closest('mark, script, style') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT,
@@ -345,7 +349,7 @@
     if (!parts.length) return renderHome();
     if (parts[0] === 'a' && parts[1]) {
       const a = byId.get(parts[1]);
-      return a ? renderArticle(a, parts[2], hl ? Search.terms(hl) : null) : renderNotFound(parts[1]);
+      return a ? renderArticle(a, parts[2], hl ? Search.hlTerms(hl) : null) : renderNotFound(parts[1]);
     }
     if (parts[0] === 'index') return renderIndex();
     if (parts[0] === 'search') return renderSearch(decodeURIComponent(parts.slice(1).join('/')));
@@ -354,6 +358,7 @@
       const a = pool[Math.floor(Math.random() * pool.length)];
       return location.replace('#/a/' + a.id);
     }
+    if (parts.length && window.Tools && Tools.route(parts)) return;
     return renderHome();
   }
 
@@ -381,6 +386,9 @@
     if (act) {
       e.preventDefault();
       if (act.dataset.act === 'pdf') openPdf();
+      if (act.dataset.act === 'bookmark' && current.a) { toggleBookmark(current.a.id); act.textContent = isBookmarked(current.a.id) ? '★ Gemerkt' : '☆ Merken'; }
+      if (act.dataset.act === 'cite' && current.a) cite(current.a, act);
+      if (act.dataset.act === 'fs+' || act.dataset.act === 'fs-') setFont(act.dataset.act === 'fs+' ? 1 : -1);
       if (act.dataset.act === 'clear-hl') { const n = $('.hl-note'); if (n) n.remove(); $$('#content mark').forEach(m => m.replaceWith(document.createTextNode(m.textContent))); $('#content').normalize(); }
       return;
     }
@@ -406,7 +414,7 @@
     const q = input.value.trim();
     if (!q) return closeSuggest();
     sugItems = Search.suggest(q, 8);
-    const ts = Search.terms(q);
+    const ts = Search.hlTerms(q);
     sug.innerHTML = sugItems.map((s, i) => `<li role="option" data-i="${i}"><a href="#/a/${s.a.id}${s.anchor ? '/' + s.anchor : ''}" tabindex="-1"><span class="s-title">${Search.highlightHtml(s.label, ts)}</span><span class="s-sub">${s.anchor ? esc(s.a.title) : esc(docRoot.get(s.a.doc).title)}</span></a></li>`).join('')
       + `<li class="s-full" data-full><a href="#/search/${encodeURIComponent(q)}" tabindex="-1">🔍 Volltextsuche nach „${esc(q)}“</a></li>`;
     sug.hidden = false; sugIdx = -1;
@@ -479,6 +487,102 @@
     else if (e.key === 'Escape') { const lb = $('.lightbox'); if (lb) lb.remove(); else if (!fb.hidden) closeFind(); }
   });
   window.addEventListener('mouseup', e => { if (e.button === 3) history.back(); if (e.button === 4) history.forward(); });
+
+
+  // ---------- Lesezeichen, Zitat, Schrift ----------
+  function isBookmarked(id) { return store.get('bookmarks', []).includes(id); }
+  function toggleBookmark(id) { let b = store.get('bookmarks', []); b = b.includes(id) ? b.filter(x => x !== id) : [id, ...b]; store.set('bookmarks', b); }
+  function cite(a, el) {
+    const root = docRoot.get(a.doc);
+    const t = `„${a.title}“. In: Solarpedia, Dossier „${root.title}“${a.ref && a.ref !== 'Rechtsbuch' ? ' (Ref.-ID ' + a.ref + ')' : ''}. #/a/${a.id}`;
+    try { navigator.clipboard.writeText(t); el.textContent = 'Kopiert ✓'; setTimeout(() => { el.textContent = 'Zitieren'; }, 1500); } catch { prompt('Zitat', t); }
+  }
+  function setFont(d) { const v = Math.max(12, Math.min(20, (store.get('fs', 14.5)) + d * 1)); store.set('fs', v); document.body.style.fontSize = v + 'px'; }
+  document.body.style.fontSize = store.get('fs', 14.5) + 'px';
+
+  // ---------- Tabellen: sortieren und filtern ----------
+  function numOf(t) {
+    t = t.replace(/[≈\s]/g, '').replace(/−/g, '-');
+    const m = t.match(/^-?\d{1,3}(?:\.\d{3})+(?:,\d+)?|^-?\d+(?:,\d+)?/);
+    if (!m) return null;
+    let v = parseFloat(m[0].replace(/\./g, '').replace(',', '.'));
+    if (/^\d[\d.,]*(Mrd|Bio)/.test(t)) v *= /Bio/.test(t) ? 1e12 : 1e9; else if (/^\d[\d.,]*Mio/.test(t)) v *= 1e6; else if (/^\d[\d.,]*Tsd/.test(t)) v *= 1e3;
+    return v;
+  }
+  function enhanceTables(root) {
+    $$('table.wikitable', root).forEach(tb => {
+      if (tb.dataset.enh || !tb.tHead || !tb.tBodies[0]) return;
+      tb.dataset.enh = '1';
+      const body = tb.tBodies[0], heads = [...tb.tHead.rows[0].cells];
+      let dir = 1, col = -1;
+      heads.forEach((th, i) => {
+        th.classList.add('sortable-h'); th.title = 'Klicken zum Sortieren';
+        th.addEventListener('click', () => {
+          dir = col === i ? -dir : 1; col = i;
+          heads.forEach(h => h.classList.remove('asc', 'desc')); th.classList.add(dir === 1 ? 'asc' : 'desc');
+          const key = tr => { const c = tr.cells[i]; if (!c) return ['', null]; const dv = c.querySelector('[data-v]'); const txt = c.textContent.trim(); return [txt, dv ? +dv.dataset.v : numOf(txt)]; };
+          const rows = [...body.rows].map(r => ({ r, k: key(r) }));
+          const numeric = rows.every(x => x.k[1] != null || x.k[0] === '' || x.k[0] === '–');
+          rows.sort((a, b) => (numeric ? ((a.k[1] ?? -Infinity) - (b.k[1] ?? -Infinity)) : a.k[0].localeCompare(b.k[0], 'de', { numeric: true })) * dir);
+          rows.forEach(x => body.appendChild(x.r));
+        });
+      });
+      const wrap = tb.closest('.tablewrap');
+      if (wrap && body.rows.length >= 10 && !(wrap.previousElementSibling && wrap.previousElementSibling.matches('input.filter'))) {
+        const inp = document.createElement('input'); inp.type = 'search'; inp.className = 'filter tfilter'; inp.placeholder = `Tabelle filtern (${body.rows.length} Zeilen) …`;
+        inp.addEventListener('input', () => { const q = Search.fold(inp.value.trim()).t; [...body.rows].forEach(r => { r.hidden = q && !Search.fold(r.textContent).t.includes(q); }); });
+        wrap.parentNode.insertBefore(inp, wrap);
+      }
+    });
+  }
+
+  // ---------- Vorschau beim Überfahren von Links ----------
+  const pv = document.createElement('div'); pv.id = 'preview'; pv.hidden = true; document.body.appendChild(pv);
+  let pvTimer = null;
+  function previewFor(id, anchor) {
+    const a = byId.get(id); if (!a) return '';
+    const img = (a.blocks.find(b => (b.t === 'infobox' || b.t === 'figure') && b.img) || {}).img;
+    let t = ''; const sec = anchor && a.toc.find(x => x.id === anchor);
+    if (sec) { const i = a.blocks.findIndex(b => b.t === 'h' && b.id === anchor); const p = a.blocks.slice(i + 1).find(b => b.t === 'p'); t = p ? strip(p.html) : ''; } else t = leadText(a, 400);
+    if (t.length > 300) t = t.slice(0, 300).replace(/\s+\S*$/, '') + ' …';
+    const root = docRoot.get(a.doc);
+    return `${img ? `<img src="${esc(img)}" alt="">` : ''}<div class="pv-b"><b>${esc(sec ? sec.text + ' · ' + a.title : a.title)}</b><small>${esc(root ? root.title : '')}${a.category ? ' · ' + esc(a.category) : ''}</small><p>${esc(t)}</p></div>`;
+  }
+  document.addEventListener('mouseover', e => {
+    const l = e.target.closest('#page a[href^="#/a/"], #toolpage a[href^="#/a/"]');
+    clearTimeout(pvTimer);
+    if (!l) { pv.hidden = true; return; }
+    pvTimer = setTimeout(() => {
+      const m = l.getAttribute('href').match(/^#\/a\/([a-z0-9-]+)(?:\/([^?]+))?/); if (!m) return;
+      const html = previewFor(m[1], m[2]); if (!html) return;
+      pv.innerHTML = html; pv.hidden = false;
+      const r = l.getBoundingClientRect(); const w = 340;
+      pv.style.left = Math.max(8, Math.min(window.innerWidth - w - 12, r.left)) + 'px';
+      const below = r.bottom + 10; const h = pv.offsetHeight;
+      pv.style.top = (below + h > window.innerHeight ? Math.max(8, r.top - h - 10) : below) + 'px';
+    }, 380);
+  });
+  document.addEventListener('scroll', () => { pv.hidden = true; }, { passive: true });
+  document.addEventListener('click', () => { pv.hidden = true; });
+
+  // ---------- Verknüpfungsnetz ----------
+  const outLinks = new Map();
+  (function () { const re = /href="#\/a\/([a-z0-9-]+)/g; for (const a of W.articles) { const set = new Set(); const scan = h => { if (!h) return; let m; re.lastIndex = 0; while ((m = re.exec(h))) set.add(m[1]); }; for (const b of a.blocks) { scan(b.html); scan(b.caption); (b.items || []).forEach(scan); (b.rows || []).forEach(r => r.forEach(scan)); (b.pairs || []).forEach(p => scan(p[1])); (b.cells || []).forEach(p => scan(p[1])); (b.parts || []).forEach(scan); } set.delete(a.id); outLinks.set(a.id, [...set].filter(x => byId.has(x))); } })();
+  function renderNet(id) {
+    const a = byId.get(id), outs = (outLinks.get(id) || []).slice(0, 14), ins = [...(backlinks.get(id) || [])].filter(x => byId.has(x)).slice(0, 14);
+    const Wd = 900, Ht = Math.max(240, Math.max(outs.length, ins.length) * 26 + 40), cx = Wd / 2, cy = Ht / 2;
+    const node = (x, y, t, anchor, id2) => `<a href="#/a/${id2}"><text x="${x}" y="${y + 4}" text-anchor="${anchor}" class="nl">${esc(t.length > 34 ? t.slice(0, 33) + '…' : t)}</text></a>`;
+    let svg = `<svg viewBox="0 0 ${Wd} ${Ht}" class="net">`;
+    const place = (arr, side) => arr.map((x, i) => { const y = 24 + (Ht - 48) * (arr.length === 1 ? 0.5 : i / (arr.length - 1)); const nx = side < 0 ? 270 : Wd - 270; svg += `<path d="M ${cx} ${cy} C ${cx + side * 90} ${cy}, ${nx - side * 90} ${y}, ${nx} ${y}" class="ne ${side < 0 ? 'in' : 'out'}"/>`; return node(side < 0 ? nx - 8 : nx + 8, y, byId.get(x).title, side < 0 ? 'end' : 'start', x); });
+    const L = place(ins, -1), Rr = place(outs, 1);
+    svg += L.join('') + Rr.join('') + `<rect x="${cx - 110}" y="${cy - 18}" width="220" height="36" rx="8" class="nc"/><text x="${cx}" y="${cy + 5}" text-anchor="middle" class="nct">${esc(a.title.length > 28 ? a.title.slice(0, 27) + '…' : a.title)}</text>`;
+    svg += `<text x="20" y="14" class="nh">verlinken hierher (${(backlinks.get(id) || new Set()).size})</text><text x="${Wd - 20}" y="14" text-anchor="end" class="nh">verlinkt wird auf (${(outLinks.get(id) || []).length})</text></svg>`;
+    return svg;
+  }
+  document.addEventListener('toggle', e => { const d = e.target; if (d.id === 'netbox' && d.open && !$('#net', d).firstChild) $('#net', d).innerHTML = renderNet(d.dataset.id); }, true);
+
+  window.__sp = { W, byId, docRoot, page, esc, strip, store, afterRender, go, leadText, backlinks, outLinks, enhance: enhanceTables, isBookmarked, toggleBookmark,
+    setCurrent: v => { current = v; }, hideSide: () => { $('#toc-portlet').hidden = true; $('#tools-portlet').hidden = true; } };
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   route();

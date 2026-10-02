@@ -12,7 +12,7 @@
     const byId = new Map(articles.map(a => [a.id, a]));
     const byName = new Map();
     const add = (name, a, anchor) => { const k = fold(name); if (k.length >= 3 && !byName.has(k)) byName.set(k, { id: a.id, anchor: anchor || '' }); };
-    const variants = t => { const o = new Set([t, t.replace(/\s*\([^)]*\)/g, ''), t.replace(/^\d+\.\s+/, '')]); for (const x of [...o]) for (const part of x.split(/:\s+|\s+[–|]\s+/)) if (part.length >= 3) o.add(part.trim()); return [...o]; };
+    const variants = t => { const o = new Set([t, t.replace(/\s*\([^)]*\)/g, ''), t.replace(/^\d+\.\s+/, '')]); for (const x of [...o]) for (const part of x.split(/:\s+|\s+[–|]\s+/)) if (part.length >= 3) o.add(part.trim()); for (const m of t.matchAll(/\(([A-Za-zÄÖÜ][A-Za-zÄÖÜ-]{2,14})\)/g)) if ((m[1].match(/[A-ZÄÖÜ]/g) || []).length >= 2) o.add(m[1]); return [...o]; };
     for (const a of articles) for (const v of variants(a.title)) add(v, a);
     for (const a of articles) {
       for (const t of a.toc || []) if (t.level >= 3 && !/^§/.test(t.text)) for (const v of variants(t.text)) add(v, a, t.id);
