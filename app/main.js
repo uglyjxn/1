@@ -33,6 +33,18 @@ function createWindow() {
   return win;
 }
 
+function userDir() {
+  if (process.env.SOLARPEDIA_USER_DIR) return process.env.SOLARPEDIA_USER_DIR;
+  return app.isPackaged ? path.join(app.getPath('userData'), 'user-articles') : path.join(__dirname, '..', 'user-articles');
+}
+ipcMain.handle('user-articles', () => {
+  const dir = userDir();
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter(f => f.endsWith('.md')).map(f => ({
+    id: f.replace(/\.md$/, ''), md: fs.readFileSync(path.join(dir, f), 'utf8'), mtime: fs.statSync(path.join(dir, f)).mtimeMs,
+  }));
+});
+
 ipcMain.handle('open-pdf', async (_e, name) => {
   const file = path.join(__dirname, 'pdf', path.basename(String(name)));
   if (!fs.existsSync(file)) return 'PDF nicht gefunden';

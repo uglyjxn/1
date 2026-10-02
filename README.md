@@ -28,3 +28,8 @@ Eintrag in Claude Desktop (Einstellungen → Entwickler → Konfiguration bearbe
 ```json
 { "mcpServers": { "solarpedia": { "command": "node", "args": ["<PFAD>/mcp/server.mjs"] } } }
 ```
+
+## Eigene Artikel (von Claude schreiben lassen)
+Der MCP-Server hat zusätzlich `write_article` und `delete_article`. Die Artikel liegen als Markdown-Dateien in `user-articles/`
+(über `SOLARPEDIA_USER_DIR` änderbar), erscheinen in der App unter „Eigene Artikel“ und sind per `[[Titel]]` / `[[artikel-id]]` verlinkbar.
+Neu geschriebene Artikel erscheinen, sobald das App-Fenster wieder den Fokus bekommt.

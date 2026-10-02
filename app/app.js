@@ -170,14 +170,14 @@
   function renderArticle(a, anchor, hl) {
     current = { type: 'article', a };
     const root = docRoot.get(a.doc);
-    const subtitle = a.kind === 'doc'
+    const subtitle = a.user && a.kind !== 'doc' ? `Eigener Artikel · <a href="#/a/${root.id}">Eigene Artikel</a>` : a.kind === 'doc'
       ? (docInfo.get(a.id) ? docInfo.get(a.id).subtitle.split('|').map(s => s.trim()).filter(Boolean).join(' · ') : '')
       : `Aus dem Dossier <a href="#/a/${root.id}">${esc(root.title)}</a>${a.ref && a.ref !== 'Rechtsbuch' ? ` (Ref.-ID ${esc(a.ref)})` : ''}`;
     const kindLabel = { doc: 'Dossier', part: 'Teil', article: a.law && !a.title.includes(':') && /\(/.test(a.title) ? 'Gesetz' : '' }[a.kind];
     const related = [...(backlinks.get(a.id) || [])].map(id => byId.get(id)).filter(Boolean).sort((x, y) => x.title.localeCompare(y.title, 'de'));
     const hasBody = a.blocks.length > 0;
     page.innerHTML = `
-      <div class="tabs"><span class="tab active">Artikel</span><span class="tab-spacer"></span><a class="tab" href="#" data-act="pdf" title="Das Original-Dossier als PDF öffnen">PDF öffnen ↗</a></div>
+      <div class="tabs"><span class="tab active">Artikel</span><span class="tab-spacer"></span>${a.pdf ? `<a class="tab" href="#" data-act="pdf" title="Das Original-Dossier als PDF öffnen">PDF öffnen ↗</a>` : ''}</div>
       ${crumbs(a)}
       <h1 id="top" class="firstHeading">${esc(a.title)}</h1>
       <div class="subtitle">${a.category ? `<span class="chip">${esc(a.category.charAt(0) + a.category.slice(1).toLowerCase())}</span> ` : ''}${kindLabel ? `<span class="chip alt">${kindLabel}</span> ` : ''}${subtitle}</div>
@@ -195,6 +195,7 @@
     $('#toc-portlet').hidden = !toc;
     $('#toc').innerHTML = toc;
     $('#tools-portlet').hidden = false;
+    $('#pdf-link').parentElement.hidden = !a.pdf;
     if (hl && hl.length) applyHighlight($('#content'), hl);
     setupSpy();
     addVisited(a);
@@ -247,7 +248,7 @@
       <h2 class="sec home-h"><span class="mw-headline">Die Dossiers</span></h2>
       <div class="cards">${W.docs.map(d => `
         <a class="card" href="#/a/${d.id}">
-          <span class="card-ref">${esc(d.ref && d.ref !== 'Rechtsbuch' ? d.ref : d.id.startsWith('setting') ? 'Überblick' : 'Gesetzbuch')}</span>
+          <span class="card-ref">${esc(d.ref === 'Eigene' ? 'Eigene Artikel' : d.ref && d.ref !== 'Rechtsbuch' ? d.ref : d.id.startsWith('setting') ? 'Überblick' : 'Gesetzbuch')}</span>
           <span class="card-title">${esc(d.title)}</span>
           <span class="card-desc">${esc(d.desc)}</span>
           <span class="card-meta">${d.count} Artikel · ${d.pages} Seiten</span>
@@ -436,7 +437,7 @@
 
   // ---------- Werkzeuge ----------
   function openPdf() {
-    const a = current.a; if (!a) return;
+    const a = current.a; if (!a || !a.pdf) return;
     if (window.desktop) window.desktop.openPdf(a.pdf); else window.open('pdf/' + encodeURIComponent(a.pdf), '_blank');
   }
   $('#pdf-link').addEventListener('click', e => { e.preventDefault(); openPdf(); });
