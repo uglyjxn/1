@@ -58,3 +58,6 @@ Der MCP-Server hat dazu die Werkzeuge `glossary`, `timeline` und `register`.
 
 ## Letzte Änderungen
 Die Startseite hat den Tab „Letzte Änderungen“ (`#/aenderungen`): neue und bearbeitete eigene Artikel nach Datei-Zeitstempel sowie das Programm-Changelog (`app/changelog.js`).
+
+## Planeten- und Weltenartikel
+`node tools/gen-planets.mjs` erzeugt aus den Dossiers je einen Artikel für jeden Planeten, Mond und jede Welt (`user-articles/u-*-planet.md`, `-mond`, `-welt` …) und die „Planeten und Welten – Übersicht“. Die Dateien tragen den Marker „Zusammenstellung aus den Dossiers“; das Skript kann beliebig oft neu laufen.
