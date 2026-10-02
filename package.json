@@ -10,7 +10,8 @@
     "dist": "electron-builder",
     "dist:win": "electron-builder --win portable nsis",
     "dist:mac": "electron-builder --mac dmg",
-    "dist:linux": "electron-builder --linux AppImage deb"
+    "dist:linux": "electron-builder --linux AppImage deb",
+    "mcp": "node mcp/server.mjs"
   },
   "build": {
     "appId": "de.solarpedia.app",
@@ -47,5 +48,9 @@
   "devDependencies": {
     "electron": "^44.5.1",
     "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.31.0",
+    "zod": "^4.6.5"
   }
 }

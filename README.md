@@ -21,3 +21,10 @@ Die fertigen Daten liegen in `app/data/articles.js`. Zum Neuaufbau aus den PDFs
 ```
 node tools/build-data.mjs <Ordner mit entpacktem ZIP>
 ```
+
+## Claude-Chat anbinden (MCP)
+`mcp/server.mjs` stellt Claude drei Werkzeuge bereit: `search_wiki`, `get_article`, `list_articles`.
+Eintrag in Claude Desktop (Einstellungen → Entwickler → Konfiguration bearbeiten), `<PFAD>` = Ordner dieses Projekts:
+```json
+{ "mcpServers": { "solarpedia": { "command": "node", "args": ["<PFAD>/mcp/server.mjs"] } } }
+```
