@@ -38,7 +38,7 @@ TOI-700 hat vier bekannte Planeten. Die äußeren beiden, d und e, liegen in der
 | e | 27,8 d | 0,134 AE | K2, Einstrahlung 1,27, Fernziel-Welt (Kontor) |
 | d | 37,4 d | 0,163 AE | K1 (wird neu bewertet), Einstrahlung 0,87, atembar und belebt (wahrscheinlich) |
 
-Siehe auch: [[u-toi-700-system|TOI-700 (System)]] mit Karte (Hilfsmittel, Karten, TOI-700-System), [[u-toi-700-b-welt|TOI-700 b]] und [[u-toi-700-c-welt|TOI-700 c]].
+Siehe auch: [[u-toi-700-system|TOI-700 (System)]] mit Karte (Hilfsmittel, Karten, TOI-700-System); Oberflächenkarte von TOI-700 d: Hilfsmittel, Karten, TOI-700 d: Oberfläche, [[u-toi-700-b-welt|TOI-700 b]] und [[u-toi-700-c-welt|TOI-700 c]].
 
 ## Quellen und verwandte Artikel
 

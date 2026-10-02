@@ -36,6 +36,7 @@ Alle Planeten liegen innerhalb der abgeleiteten Sternzone von ≈ 0,70 AE: Der Z
 Besiedlung und Landung auf TOI-700 d sind bis 2240 durch ein Moratorium des Bundes gesperrt; es gilt das Rahmengesetz für die Welt TOI-700 d (TOI-RahmG). Der Fernziel-Fonds des Ceres-Kontors hält ≈ 71 % der Landfläche von d und 17 % Landanteile auf e; der Claim-Index für e stieg nach der Bekanntmachung um ≈ 210 % als Mitzieher von d.
 
 ## Siehe auch
+- Oberflächenkarte von TOI-700 d (Menü Hilfsmittel, Karten, „TOI-700 d: Oberfläche“)
 - [[toi-700-d-2234|TOI-700 d]] (Dossier) und [[toi-700-d-2234-das-system|Das System]]
 - [[Die Anwartschaften des Ceres-Kontors]]
 - [[u-fernziel-fonds-und-toi-700-d-arbeitshypothese|Fernziel-Fonds und TOI-700-d-Arbeitshypothese]]

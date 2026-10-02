@@ -18,10 +18,10 @@
   }
   Tools.pages.karte = parts => {
     const which = parts[0] || 'stern';
-    const fn = { stern: starMap, sonnensystem: solarMap, handel: tradeMap, toi700: toiSystem, toi700d: toiMap }[which] || starMap;
+    const fn = { stern: starMap, sonnensystem: solarMap, handel: tradeMap, toi700: toiSystem, toi700d: toiMap, toi700o: toiSurface }[which] || starMap;
     fn(parts[1]);
   };
-  const mapTabs = which => `<div class="subtabs">${[['stern', 'Sternkarte'], ['handel', 'Handelsnetz'], ['sonnensystem', 'Sonnensystem'], ['toi700', 'TOI-700-System'], ['toi700d', 'TOI-700 d']].map(([k, n]) => `<a class="${k === which ? 'on' : ''}" href="#/karte/${k}">${n}</a>`).join('')}</div>`;
+  const mapTabs = which => `<div class="subtabs">${[['stern', 'Sternkarte'], ['handel', 'Handelsnetz'], ['sonnensystem', 'Sonnensystem'], ['toi700', 'TOI-700-System'], ['toi700o', 'TOI-700 d: Oberfläche'], ['toi700d', 'TOI-700 d: Zonen']].map(([k, n]) => `<a class="${k === which ? 'on' : ''}" href="#/karte/${k}">${n}</a>`).join('')}</div>`;
 
   function starMap(mode) {
     const full = mode === 'voll';
@@ -111,9 +111,84 @@
     window.__sp.enhance(b);
   }
 
+
+  // ---------- TOI-700 d: Oberflächenkarte (flächentreue Mollweide-Projektion, Substellarpunkt in der Mitte) ----------
+  function toiSurface() {
+    const b = Tools.begin('TOI-700 d: Oberflächenkarte', { tab: 'Karte', sub: 'Flächentreue Weltkarte (Mollweide) mit dem Substellarpunkt in der Mitte; gebunden rotierende Welt, daher gibt es keine Längen- und Breitengrade im irdischen Sinn: Die Zonen sind Kreise um den Substellarpunkt. Zonen, Flächen und Winkel: Hauptbericht des Teams vom 24. August 2235 (Abb. 5 im Dossier ist überholt). Lage und Form der Randmeere und Landsektoren sind schematisch; das Dossier nennt nur Flächen.' });
+    const D = Math.PI / 180, W0 = 1000, Rm = W0 / (4 * Math.SQRT2), cx = 500, cy = 270;
+    const moll = (lon, lat) => { // Grad -> Pixel
+      const phi = lat * D; let t = phi;
+      if (Math.abs(lat) < 89.999) for (let i = 0; i < 30; i++) { const f = 2 * t + Math.sin(2 * t) - Math.PI * Math.sin(phi), d = 2 + 2 * Math.cos(2 * t); if (Math.abs(d) < 1e-9) break; t -= f / d; } else t = Math.sign(lat) * Math.PI / 2;
+      return [cx + (2 * Math.SQRT2 / Math.PI) * Rm * lon * D * Math.cos(t), cy - Math.SQRT2 * Rm * Math.sin(t)];
+    };
+    const f1 = v => v.toFixed(1);
+    const pt = (lon, lat) => { const [x, y] = moll(lon, lat); return f1(x) + ',' + f1(y); };
+    // Region „Winkelabstand zum Substellarpunkt < rho“
+    const region = rho => {
+      const c = Math.cos(rho * D), right = [];
+      for (let lat = 90; lat >= -90; lat -= 1) {
+        const cl = Math.cos(lat * D); let lm;
+        if (cl < 1e-9) lm = c <= 0 ? 180 : null; else { const q = c / cl; lm = q >= 1 ? null : q <= -1 ? 180 : Math.acos(q) / D; }
+        if (lm !== null) right.push([lat, lm]);
+      }
+      return 'M' + right.map(([la, lm]) => pt(lm, la)).concat(right.slice().reverse().map(([la, lm]) => pt(-lm, la))).join(' L') + ' Z';
+    };
+    const polar = (rho, beta) => { const r = rho * D, be = beta * D; return [Math.atan2(Math.sin(r) * Math.cos(be), Math.cos(r)) / D, Math.asin(Math.sin(r) * Math.sin(be)) / D]; };
+    const pp = (rho, beta) => pt(...polar(rho, beta));
+    const sector = (r1, r2, b1, b2, n = 24) => { const a = [], z = []; for (let i = 0; i <= n; i++) { const be = b1 + (b2 - b1) * i / n; a.push(pp(r2, be)); z.push(pp(r1, be)); } return 'M' + a.concat(z.reverse()).join(' L') + ' Z'; };
+    const bands = [[180, 'ice2'], [110, 'ice1'], [95, 'r3'], [85, 'r2'], [68, 'r1'], [55, 'sun']];
+    const base = bands.map(([r, c]) => `<path d="${region(r)}" class="zb ${c}" style="stroke:none"/>`).join('');
+    const outline = `<path d="${region(180)}" fill="none" stroke="#3a4552" stroke-width="1.5"/>`;
+    // Randmeere (je 27–38 Mio. km²): drei Sektoren des Rings, dazwischen Land
+    const sea = [30, 150, 270].map((c0, i) => `<path d="${sector(60, 88, c0 - 29, c0 + 29)}" fill="#2a6ea6" stroke="#8fc3ec" stroke-width="1" opacity=".95"><title>Randmeer ${i + 1}: 27 bis 38 Mio. km² (Lage schematisch)</title></path>`).join('');
+    const lakes = [[20, 82, 90], [18, 66, 120], [16, 74, 210], [14, 80, 330], [20, 64, 330], [15, 86, 90]].map(([rad, rho, be]) => { const [lo, la] = polar(rho, be), [x, y] = moll(lo, la); return `<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${rad / 2.2}" ry="${rad / 3.4}" fill="#2a6ea6" opacity=".9"/>`; }).join('');
+    const grid = [30, 60, 90, 120, 150].map(r => `<path d="${region(r)}" fill="none" stroke="#ffffff" stroke-opacity=".13" stroke-dasharray="2 4"/>`).join('');
+    const gl = [30, 60, 90, 120, 150].map(r => { const [x, y] = moll(r, 0); return `<text x="${f1(x + 3)}" y="${f1(y - 2)}" class="rl">${r}°</text>`; }).join('');
+    const marks = `<path d="${region(55)}" fill="none" stroke="#fff" stroke-dasharray="4 4" opacity=".7"/><path d="${region(95)}" fill="none" stroke="#fff" stroke-dasharray="4 4" opacity=".7"/>`
+      + `<path d="${region(83)}" fill="none" stroke="#f0b84a" stroke-opacity=".6" stroke-dasharray="1 3"/><path d="${region(97)}" fill="none" stroke="#f0b84a" stroke-opacity=".6" stroke-dasharray="1 3"/>`
+      + `<path d="${region(65)}" fill="none" stroke="#bfe3ff" stroke-opacity=".55" stroke-width="2" stroke-dasharray="7 3"/>`;
+    const cloud = `<path d="${region(12)}" fill="none" stroke="#e8e8e8" stroke-opacity=".5" stroke-dasharray="2 2"/>`;
+    const sites = [
+      { k: 'sub', n: 'Substellarpunkt (Stern im Zenit)', at: moll(0, 0), c: '#f0b84a', r: 8, lab: 'Substellarpunkt', dy: 20, href: null },
+      { k: 'z2', n: 'Sonde Zenit-2 (Sonnenseite, ≈ 2°): +41 °C, 1,09 bar, Feuchte 24 %, Wind 11 m/s', at: moll(...polar(2, 0)), c: '#fff', r: 4, lab: 'Zenit-2', dy: -10, href: 'Die Befunde der Sonden', dx: 34 },
+      { k: 'mb', n: 'Meridian-Basis (Forschungsstation, ≈ 120 Personen) am inneren Ringrand', at: moll(...polar(58, 75)), c: '#ff6b6b', r: 6, lab: 'Meridian-Basis', dy: -11, href: 'Folgen für Recht, Markt und das Rätsel' },
+      { k: 's1', n: 'Sonde Saum-1 (Band, ≈ 80°): +7 °C, 1,06 bar, O₂ 20,3 %, Feuchte 72 %, Wind 4 m/s', at: moll(...polar(80, 195)), c: '#fff', r: 4, lab: 'Saum-1', dy: -9, href: 'Die Befunde der Sonden' },
+      { k: 'n3', n: 'Sonde Nacht-3 (Schattenseite, ≈ 150°): −34 °C, 1,03 bar, Radar: Eis ≥ 40 m', at: moll(150, 0), c: '#fff', r: 4, lab: 'Nacht-3', dy: -9, href: 'Die Befunde der Sonden', anchor: 'end' },
+      { k: 'anti', n: 'Antistellarpunkt (Mitte der Schattenseite) liegt am linken und rechten Kartenrand', at: moll(-179, 0), c: '#9ab', r: 3, lab: '', dy: 0, href: null },
+    ];
+    const siteSvg = sites.map(s0 => { const [x, y] = s0.at; const inner = `<circle cx="${f1(x)}" cy="${f1(y)}" r="${s0.r}" fill="${s0.c}" stroke="#0e1318" stroke-width="2"/>${s0.lab ? `<text x="${f1(x + (s0.dx || 0))}" y="${f1(y + s0.dy)}" text-anchor="${s0.anchor || 'middle'}" class="sl" style="font-size:12px;paint-order:stroke;stroke:#0e1318;stroke-width:3px">${s0.lab}</text>` : ''}<title>${esc(s0.n)}</title>`; return s0.href ? svgLink(s0.href, inner) : `<g>${inner}</g>`; }).join('');
+    const zl = [[0, 0, 'Sonnenseite'], ...[[75, 'Ring'] ]].length; // Platzhalter vermeiden
+    const lbl = (txt, lon, lat, cls = 'sd') => { const [x, y] = moll(lon, lat); return `<text x="${f1(x)}" y="${f1(y)}" text-anchor="middle" class="${cls}" style="font-size:12px;fill:#fff;paint-order:stroke;stroke:#0e1318;stroke-width:3px">${txt}</text>`; };
+    const labels = lbl('Sonnenseite (0–55°)', 0, 22) + lbl('Hitzesteppe, Krusten', 0, 14) + lbl('Ring: Wälder, Seen, Randmeere (55–95°)', 0, -78) + lbl('Schattenseite (ab 95°): Eisschild', 142, 38) + lbl('Schattenseite', -142, 38) + lbl('Randmeer', polar(75, 30)[0], polar(75, 30)[1]) + lbl('Randmeer', polar(75, 150)[0], polar(75, 150)[1]) + lbl('Randmeer', polar(75, 270)[0], polar(75, 270)[1]);
+    const rows = [['sun', 'Sonnenseite', '0–55°', '≈ 123 Mio. km² (21 %)', 'bis +45 °C · Hitzesteppe, Krusten, Salzpfannen · eisfreies Land ≈ 108 Mio. km² · ≈ 22 Pflanzenarten'],
+      ['r1', 'Innerer Ring: Schirmwald', '55–68°', '', 'Bäume bis 40 m, große flache Blätter · ≈ 38 Arten · Wolkenwall 55–65° mit Dauerregen (≈ 1.800 mm/Jahr)'],
+      ['r2', 'Mittlerer Ring: Dämmerwald', '68–85°', '', 'dichtester Wald, 25–55 m · ≈ 62 Arten, größte Vielfalt'],
+      ['r3', 'Äußerer Ring: Randwald', '85–95°', '', '3–8 m, Fangblätter zum Horizont · ≈ 18 Arten · zur Eiskante Moose und Flechten'],
+      ['ice1', 'Eisrand', '95–110°', '', 'Eisalgen und Mikrobenmatten im Schmelzwasser'],
+      ['ice2', 'Schattenseite', 'ab 110°', '≈ 267 Mio. km² (46 %)', 'bis −40 °C · Eisschild 40–900 m · kein sichtbares Leben, Seen unter dem Eis vermutet']];
+    b.innerHTML = mapTabs('toi700o') + `
+      <div class="subtabs" id="lyr"><label><input type="checkbox" data-l="grid" checked> Winkelnetz</label> <label><input type="checkbox" data-l="marks" checked> Zonengrenzen</label> <label><input type="checkbox" data-l="water" checked> Meere &amp; Seen</label> <label><input type="checkbox" data-l="sites" checked> Orte</label> <label><input type="checkbox" data-l="fund"> Anteil des Fernziel-Fonds</label></div>
+      <div class="mapbox"><svg viewBox="0 0 1000 560" class="map"><defs><pattern id="fh" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#ffd166" stroke-width="2.2"/></pattern></defs>
+        ${base}<g data-g="grid">${grid}${gl}</g><g data-g="fund"><path d="${region(95)} ${region(55)}" fill="url(#fh)" fill-rule="evenodd" opacity=".7"><title>Ringland: ≈ 56 von 61 Mio. km² (92 %) gehören dem Fernziel-Fonds</title></path></g><g data-g="water">${sea}${lakes}</g>
+        <g data-g="marks">${marks}${cloud}</g>${outline}${labels}<g data-g="sites">${siteSvg}</g></svg></div>
+      <div class="legend2"><span><i class="zsw sun"></i>Sonnenseite</span><span><i class="zsw r1"></i>Schirmwald</span><span><i class="zsw r2"></i>Dämmerwald</span><span><i class="zsw r3"></i>Randwald</span><span><i class="zsw ice1"></i>Eisrand</span><span><i class="zsw ice2"></i>Schattenseite</span><span><i style="background:#2a6ea6"></i>Randmeere &amp; Seen</span><span>weiß gestrichelt: 55° / 95° · gelb gepunktet: Wanderung der Dämmerungslinie ±7° (Bahnexzentrizität e ≈ 0,11) · hellblau: Wolkenwall · klein in der Mitte: Wolkenwirbel um den Substellarpunkt</span></div>
+      <h2 class="sec">Zonen im Überblick</h2>
+      <div class="tablewrap"><table class="wikitable"><thead><tr><th>Zone</th><th>Winkel</th><th>Fläche</th><th>Merkmale (Hauptbericht 2235)</th></tr></thead><tbody>${rows.map(r => `<tr><td><i class="zsw ${r[0]}"></i> <b>${esc(r[1])}</b></td><td>${r[2]}</td><td>${r[3]}</td><td>${esc(r[4])}</td></tr>`).join('')}</tbody></table></div>
+      <h2 class="sec">Land, Wasser und Besitz</h2>
+      <div class="tablewrap"><table class="wikitable"><thead><tr><th>Gebiet</th><th>Land</th><th>Wasser</th><th>Fernziel-Fonds (Land)</th></tr></thead><tbody>
+        <tr><td><b>Ring (55–95°)</b></td><td>≈ 61 Mio. km² (Wälder ≈ 45 Mio. km², etwa drei Viertel)</td><td>≈ 132 Mio. km², drei Randmeere zu je 27–38 Mio. km²</td><td>≈ 56 Mio. km² (92 %)</td></tr>
+        <tr><td><b>Sonnenseite</b></td><td>≈ 108 Mio. km² eisfrei</td><td>–</td><td>≈ 64 Mio. km² (59 %)</td></tr>
+        <tr><td><b>Schattenseite</b></td><td>Eisschild (40–900 m)</td><td>gebunden als Eis</td><td>–</td></tr></tbody></table></div>
+      <p class="note">Flächen: Gesamtfläche ≈ 5,84 · 10⁸ km². Wind am Boden zur Sonne, in der Höhe zur Nacht. Luft im Ring: O₂ 20,3 %, 1,06 bar. Die Meridian-Basis (≈ 120 Personen) ist die einzige zugelassene Station; Moratorium bis 2240 (${Tools.link('Planetenschutz und Recht')}). Siehe auch ${Tools.link('Der Bericht des Teams (Hauptbericht, 24. August 2235)', 'Hauptbericht')}, <a href="#/a/u-toi-700-d-welt">TOI-700 d (Welt)</a>, <a href="#/karte/toi700d">Zonenansicht</a>, <a href="#/karte/toi700">Systemkarte</a>.</p>`;
+    const apply = () => { document.querySelectorAll('#lyr input').forEach(i => { const g = b.querySelector(`[data-g="${i.dataset.l}"]`); if (g) g.style.display = i.checked ? '' : 'none'; }); };
+    document.querySelectorAll('#lyr input').forEach(i => i.addEventListener('change', apply));
+    apply();
+    window.__sp.enhance(b);
+  }
+
   // ---------- TOI-700 d ----------
   function toiMap() {
-    const b = Tools.begin('TOI-700 d', { tab: 'Karte', sub: 'Gebunden rotierende Welt: Der Planet zeigt dem Stern immer dieselbe Seite. Ansicht vom Substellarpunkt (Mitte = Stern im Zenit); Radius ∝ Winkel. Quelle: Hauptbericht des Teams vom 24. August 2235.' });
+    const b = Tools.begin('TOI-700 d: Zonen', { tab: 'Karte', sub: 'Gebunden rotierende Welt: Der Planet zeigt dem Stern immer dieselbe Seite. Ansicht vom Substellarpunkt (Mitte = Stern im Zenit); Radius ∝ Winkel. Quelle: Hauptbericht des Teams vom 24. August 2235.' });
     const bands = [
       { n: 'Sonnenseite', a: 0, z: 55, c: 'sun', t: 'bis +45 °C · Hitzesteppe, Krusten, Salzpfannen · 21 % der Fläche', link: 'Der Bericht des Teams (Hauptbericht, 24. August 2235)' },
       { n: 'Innerer Ring · Schirmwald', a: 55, z: 68, c: 'r1', t: '≈ 38 Arten' },
