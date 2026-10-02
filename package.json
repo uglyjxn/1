@@ -6,6 +6,7 @@
   "main": "app/main.js",
   "scripts": {
     "start": "electron .",
+    "update": "node tools/update.mjs",
     "build:data": "node tools/build-data.mjs",
     "dist": "electron-builder",
     "dist:win": "electron-builder --win portable nsis",

@@ -61,3 +61,7 @@ Die Startseite hat den Tab „Letzte Änderungen“ (`#/aenderungen`): neue und 
 
 ## Planeten- und Weltenartikel
 `node tools/gen-planets.mjs` erzeugt aus den Dossiers je einen Artikel für jeden Planeten, Mond und jede Welt (`user-articles/u-*-planet.md`, `-mond`, `-welt` …) und die „Planeten und Welten – Übersicht“. Die Dateien tragen den Marker „Zusammenstellung aus den Dossiers“; das Skript kann beliebig oft neu laufen.
+
+## Automatisch aktualisieren
+Einmalig: `git clone -b claude/gallant-lovelace-x4w4w5 https://github.com/uglyjxn/1 Solarpedia` (Git muss installiert sein), dann im Ordner `npm install`.
+Danach genügt ein Doppelklick auf `update.bat` (oder `npm run update`): holt die neueste Version per `git pull` und überträgt neue Artikel in den Ordner `<Benutzerordner>\Solarpedia\user-articles` der installierten App.
