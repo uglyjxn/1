@@ -18,10 +18,10 @@
   }
   Tools.pages.karte = parts => {
     const which = parts[0] || 'stern';
-    const fn = { stern: starMap, sonnensystem: solarMap, handel: tradeMap, toi700: toiSystem, toi700d: toiMap, toi700o: toiSurface }[which] || starMap;
+    const fn = { stern: starMap, sonnensystem: solarMap, handel: tradeMap, toi700: toiSystem, toi700d: toiMap, toi700o: toiSurface, toi700b: m => window.ToiBand ? window.ToiBand.page(mapTabs('toi700b'), [m]) : toiSurface() }[which] || starMap;
     fn(parts[1]);
   };
-  const mapTabs = which => `<div class="subtabs">${[['stern', 'Sternkarte'], ['handel', 'Handelsnetz'], ['sonnensystem', 'Sonnensystem'], ['toi700', 'TOI-700-System'], ['toi700o', 'TOI-700 d: Oberfläche'], ['toi700d', 'TOI-700 d: Zonen']].map(([k, n]) => `<a class="${k === which ? 'on' : ''}" href="#/karte/${k}">${n}</a>`).join('')}</div>`;
+  const mapTabs = which => `<div class="subtabs">${[['stern', 'Sternkarte'], ['handel', 'Handelsnetz'], ['sonnensystem', 'Sonnensystem'], ['toi700', 'TOI-700-System'], ['toi700o', 'TOI-700 d: Oberfläche'], ['toi700b', 'TOI-700 d: Bandkarte'], ['toi700d', 'TOI-700 d: Zonen']].map(([k, n]) => `<a class="${k === which ? 'on' : ''}" href="#/karte/${k}">${n}</a>`).join('')}</div>`;
 
   function starMap(mode) {
     const full = mode === 'voll';

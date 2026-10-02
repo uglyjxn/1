@@ -246,6 +246,65 @@ und unter Schutz zu stellen. Wer das als Entgegenkommen versteht, verweist auf d
 - Darf man in einem Planeten siedeln, dessen Wälder bereits leben? Wie setzt Sol seine Hoheit über die Welt ohne Station vor Ort durch?
 - Wie viele Sprünge schafft die Q-Reihe? Die Konzerne spekulieren über eine militärische Nutzung der Reichweite; die Technik ist Verschlusssache.
 
+## Klima: Warum es über dem Band so viel regnet
+
+TOI-700 d dreht dem Stern immer dieselbe Seite zu. Dadurch ist das Wetter nicht von Tag und Nacht bestimmt, sondern vom **Temperaturgefälle zwischen heißer Sonnenseite und eisiger Schattenseite**. Dieses Gefälle treibt einen riesigen, dauerhaften Luftkreislauf an. Das Band (der Ring um die Dämmerungslinie) liegt genau dort, wo warme und kalte Luft aufeinandertreffen; deshalb regnet es dort so viel. Die Befunde stammen aus dem Hauptbericht vom 24. August 2235; die Erklärung im Einzelnen ist eine Erläuterung der Redaktion auf Grundlage dieser Befunde (Folgerung, kein eigener Messwert).
+
+### Der Kreislauf der Luft
+1. **Aufstieg auf der Sonnenseite.** Am Substellarpunkt steht der Stern fast im Zenit, der Boden erreicht bis +45 °C. Die Luft darüber wird heiß und steigt auf.
+2. **Höhenwind zur Nacht.** In der Höhe strömt die aufgestiegene Luft zur Schattenseite (Hauptbericht: „in der Höhe zur Nacht“). Dabei kühlt sie ab und verliert den Wasserdampf, den sie noch trägt.
+3. **Absinken auf der Schattenseite.** Über dem Eisschild (bis −40 °C) sinkt die kalte, schwere Luft ab.
+4. **Bodenwind zur Sonne.** Am Boden fließt die kalte Luft zurück in Richtung Sonne (Hauptbericht: „Winde wehen am Boden zur Sonne“). Auf diesem Weg überquert sie den Eisrand und das Band.
+5. **Aufnahme von Wasser im Band.** Das Band besteht zu etwa 68 % aus Wasser (≈ 132 von 193 Mio. km²: drei Randmeere und viele Seen). Die kalte, trockene Bodenluft nimmt über dem Wasser Feuchtigkeit auf und erwärmt sich; sie ist nach dem Weg durch das Band feucht und warm.
+6. **Treffpunkt bei 55 bis 65°.** Dort stößt die feuchte Bodenluft auf die heiße, aufsteigende Luft der Sonnenseite und wird gezwungen, mit ihr nach oben zu steigen. In der Höhe kühlt sie stark ab, der Wasserdampf kondensiert, es entsteht der **Wolkenwall**. Wo ein Gebirge am inneren Ringrand liegt (im Kartenentwurf das Schirmgebirge), verstärkt das erzwungene Aufsteigen am Hang den Effekt.
+7. **Dauerregen.** Aus dem Wolkenwall fällt am inneren Ring ≈ **1.800 mm Regen im Jahr** (Hauptbericht); das ist fast das Doppelte von Mitteleuropa und fällt nicht in einer Regenzeit, sondern das ganze Jahr, denn der Antrieb (Sonnenseite heiß, Schattenseite kalt) ändert sich nie.
+
+### Folgen für die Landschaft
+- **Regenschatten der Sonnenseite.** Die Luft, die nach dem Wolkenwall die Sonnenseite erreicht, hat ihr Wasser schon abgegeben. Dort ist es heiß und trocken (Feuchte 24 % bei der Sonde Zenit-2). Es entstehen Hitzesteppe, Krusten und Salzpfannen, nur Biokrusten und kuppelförmige Wasserfänger überleben.
+- **Wälder im Ring.** Der Dauerregen erklärt die dichten Wälder im inneren und mittleren Ring (Schirmwald und Dämmerwald; Feuchte 72 % bei der Sonde Saum-1). Zum äußeren Rand hin nehmen Regen und Wärme ab, die Wälder werden niedrig (Randwald), dann folgen Moose, Flechten und Eisalgen.
+- **Wasserkreislauf.** Das Wasser bleibt im Kreislauf: Verdunstung über Meeren und Seen des Bandes, Regen am Wolkenwall, Abfluss in Flüssen zu den Randmeeren. Was die Höhenluft zur Nacht trägt, fällt als Schnee auf den Eisschild und ist dort als Eis gebunden („hier ist das Wasser gebunden“); der Schild fließt zum Rand und schmilzt am Eisrand, dessen Schmelzwasser (Eisalgen, Mikrobenmatten) wieder in die Flüsse des Bandes gelangt.
+- **Wärmetransport.** Der Kreislauf bringt neben Wasser auch Wärme in den Ring (Hauptbericht): Deshalb ist das Band mit −5 bis +20 °C bewohnbar, obwohl der Planet auf der einen Seite glüht und auf der anderen gefriert.
+- **Jahreszeiten.** Die Bahn ist leicht exzentrisch (e ≈ 0,11): Die Einstrahlung schwankt je Umlauf (37,4 Tage) um ≈ ±22 %, die Dämmerungslinie wandert um ≈ ±7°. Folgerung: Auch der Wolkenwall verlagert sich im Takt des Umlaufs um einige Grad und ist näher am Stern-Perihel stärker (mehr Temperaturgefälle, stärkerer Antrieb). Das erklärt den „Jahreszeiten-Gang“ der Messung von 2231 bis 2233.
+- **Wolkenwirbel.** Das 41-Stunden-Signal, das 2231 als Tag missdeutet wurde, stammt von einem Wolkenwirbel, der den Substellarpunkt umkreist (Superrotation der Hochatmosphäre).
+
+### Niederschlag und Temperatur nach Zonen
+| Zone | Winkel | Niederschlag | Temperatur | Quelle |
+| --- | --- | --- | --- | --- |
+| Sonnenseite | 0–55° | Modell: unter 100 mm/Jahr in der Mitte, steigend zum Rand | bis +45 °C (Sonde: +41 °C) | Hauptbericht (Temperatur), Modell (Regen) |
+| Wolkenwall, innerer Ring | 55–65° | ≈ 1.800 mm/Jahr | ≈ +20 °C | Hauptbericht |
+| Mittlerer Ring | 68–85° | Modell: ≈ 1.200 bis 650 mm/Jahr | ≈ +7 °C (Sonde Saum-1 bei 80°: +7 °C) | Hauptbericht (Temperatur), Modell (Regen) |
+| Äußerer Ring | 85–95° | Modell: ≈ 650 bis 420 mm/Jahr | bis −5 °C | Hauptbericht (Temperatur), Modell (Regen) |
+| Eisrand | 95–110° | Modell: ≈ 400 bis 170 mm/Jahr (Schnee, Schmelzwasser) | bis −18 °C (Modell) | Modell |
+| Schattenseite | ab 110° | Modell: unter 100 mm/Jahr (Schnee) | bis −40 °C (Sonde Nacht-3: −34 °C) | Hauptbericht (Temperatur), Modell (Regen) |
+
+Die Niederschlagswerte außer den 1.800 mm am inneren Ring sind Modellwerte der Bandkarte (Hilfsmittel, Karten, „TOI-700 d: Bandkarte“, Ansicht „Niederschlag“ und Ebene „Zirkulation“).
+
+## Geographie des Bandes (Kartenentwurf)
+
+Die Dossiers nennen für TOI-700 d Flächen und Winkel, aber keine Koordinaten. Die **Bandkarte** (Hilfsmittel, Karten, „TOI-700 d: Bandkarte“) und die folgende Beschreibung sind ein **Kartenentwurf**: eine deterministische Anordnung von Gelände, Meeren, Gebirgen und Flüssen, die die Flächenangaben des Hauptberichts einhält. Form, Lage, Höhen und Namen sind Setzungen (Arbeitsnamen nach Mitgliedern der Meridian-Expedition) und nicht Dossier-Kanon.
+
+| Größe | Entwurf | Hauptbericht 2235 |
+| --- | --- | --- |
+| Ring (55–95°) | 193 Mio. km² | ≈ 193 |
+| Land im Ring | 61 Mio. km² (Wald ≈ 45, darüber Fels und Gebirge) | ≈ 61, Wälder ≈ 45 (drei Viertel) |
+| Wasser im Ring | 132 Mio. km² | ≈ 132 |
+| Randmeere | 33, 36, 38 Mio. km² | je 27 bis 38 |
+| Seen | 28 Mio. km² (Seenplatten und Flussseen) | Rest des Wassers |
+| Sonnenseite | 124 Mio. km², Land 109, Salzpfannen 15 | ≈ 123, eisfreies Land ≈ 108 |
+
+### Landschaften des Bandes (Entwurf)
+- **Hitzesteppe** (0–55°): flache, trockene Hochebene mit Krusten und Matten; 15 Mio. km² Salzpfannen, in denen sich Wasser sammelt und verdunstet. Rinnsale gibt es nur am Rand, wo der Wolkenwall noch Regen bringt.
+- **Schirmgebirge** (innerer Ringrand, ≈ 52–63°): eine Gebirgskette am Rand der Regenzone mit Pässen; höchste Gipfel ≈ 2.120 m. Sie zwingt die feuchte Luft zusätzlich zum Aufsteigen und gibt dem Schirmwald (Bäume bis 40 m) seinen Regen.
+- **Schirmwald** und **Dämmerwald** (55–85°): die großen Waldgebiete auf Land zwischen Gebirge und Meeren, am dichtesten in den drei Landengen zwischen den Randmeeren.
+- **Randmeere** (≈ 70–92°): Nakamura-Meer (≈ 33 Mio. km²), Peixoto-Meer (≈ 36 Mio. km²), Lindahl-Meer (≈ 38 Mio. km²); am äußeren Ring, wo das Schmelzwasser des Eisrandes und die Flüsse zusammenlaufen. Im Entwurf liegt der tiefste Meeresboden bei ≈ -2.240 m.
+- **Landengen**: drei schmale Landbrücken (bei den Azimuten 92°, 212° und 332°) trennen die Randmeere; sie tragen den Dämmerwald.
+- **Randgebirge** (≈ 88–94°): Küstenkette am äußeren Ringrand mit dem Randwald (3 bis 8 m hohe Gehölze), höchste Gipfel ≈ 2.310 m; dahinter beginnt der Eisrand.
+- **Flüsse**: Qureshi-Fluss, Reyes-Fluss, Okoye-Fluss und viele kleinere entwässern den inneren Ring in die Randmeere; im Entwurf nur dort, wo mehr als ≈ 380 mm Regen fallen. Am Eisrand entspringen Schmelzwasserbäche.
+- **Eisrand und Eisschild** (ab ≈ 95°): Gletscherzungen, Eisalgen und Mikrobenmatten im Schmelzwasser; der Eisschild ist 40 bis 900 m dick.
+- **Orte:** Die Meridian-Basis (≈ 120 Personen) liegt am inneren Ringrand, die Sonde Saum-1 bei ≈ 80° im Wald, Zenit-2 am Substellarpunkt; Nacht-3 (≈ 150°) liegt außerhalb des Kartenausschnitts.
+
+Karten: [[u-toi-700-system|TOI-700 (System)]]; Hilfsmittel, Karten: „TOI-700 d: Bandkarte“ (Gelände, Höhenkarte, Niederschlag, Temperatur, Vegetation, Höhenprofil), „TOI-700 d: Oberfläche“ (Weltkarte) und „TOI-700 d: Zonen“.
+
 Siehe auch: [[u-fernlicht-affare|Fernlicht-Affäre]], [[u-fernziel-fonds-und-toi-700-d-arbeitshypothese|Fernziel-Fonds und TOI-700-d-Arbeitshypothese]], [[u-fernseite-array|Fernseite-Array]], [[toi-700-d-2234|TOI-700 d (Dossier)]].
 
 Siehe auch: [[u-toi-700-system|TOI-700 (System)]] mit Karte (Hilfsmittel, Karten, TOI-700-System); Oberflächenkarte von TOI-700 d: Hilfsmittel, Karten, TOI-700 d: Oberfläche, [[u-toi-700-b-welt|TOI-700 b]] und [[u-toi-700-c-welt|TOI-700 c]].

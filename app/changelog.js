@@ -1,5 +1,6 @@
 // Änderungsprotokoll der Solarpedia selbst (Funktionen und Inhalte). Neueste Einträge zuerst.
 window.CHANGELOG = [
+  { date: '2026-10-02', title: 'TOI-700 d: Bandkarte, Höhenkarte und Klima', text: 'Draufsicht auf das Band mit Gelände-, Höhen-, Niederschlags-, Temperatur- und Vegetationsansicht, Flüssen, Meeren, Gebirgen, Wolkenwall, Zirkulation und Höhenprofil; im Artikel zu TOI-700 d neue Abschnitte „Klima“ (warum es über dem Band so viel regnet) und „Geographie des Bandes“.' },
   { date: '2026-10-02', title: 'TOI-700 d: Oberflächenkarte', text: 'Flächentreue Weltkarte der Oberfläche (Hilfsmittel, Karten): Sonnenseite, Ring mit Wäldern und Randmeeren, Schattenseite, Sondenlandeplätze, Meridian-Basis, Wolkenwall, Anteil des Fernziel-Fonds; Ebenen ein- und ausblendbar.' },
   { date: '2026-10-02', title: 'TOI-700-System: Karte und Planeten', text: 'Neue Karte (Hilfsmittel, Karten, TOI-700-System) mit allen vier Planeten maßstäblich und habitabler Zone; neue Artikel TOI-700 (System), b und c; e ergänzt.' },
   { date: '2026-10-02', title: 'Artikel zu allen Planeten und Welten', text: '64 neue Artikel: Planeten, Monde und Zwergplaneten des Sonnensystems, alle 13 bewohnten Welten, TOI-700 d und alle Koloniewelten-Kandidaten mit Steckbrief, Dossier-Angaben, Anflug, Reisezeiten und Erwähnungen; dazu die „Planeten und Welten – Übersicht“.' },

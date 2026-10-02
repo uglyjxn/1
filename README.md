@@ -65,3 +65,6 @@ Die Startseite hat den Tab „Letzte Änderungen“ (`#/aenderungen`): neue und 
 ## Automatisch aktualisieren
 Einmalig: `git clone -b claude/gallant-lovelace-x4w4w5 https://github.com/uglyjxn/1 Solarpedia` (Git muss installiert sein), dann im Ordner `npm install`.
 Danach genügt ein Doppelklick auf `update.bat` (oder `npm run update`): holt die neueste Version per `git pull` und überträgt neue Artikel in den Ordner `<Benutzerordner>\Solarpedia\user-articles` der installierten App.
+
+## TOI-700 d: Bandkarte
+Hilfsmittel → Karten → „TOI-700 d: Bandkarte“: Draufsicht auf das Band mit Ansichten Gelände, Höhenkarte, Niederschlag, Temperatur und Vegetation. Das Geländemodell (`app/toi-terrain.js`) ist eine kartografische Setzung, deterministisch und auf die Flächenangaben des Hauptberichts 2235 kalibriert; `node tools/toi-stats.mjs` prüft die Flächen (Ring 193, Wasser 132, Land 61, Wald ≈ 45, Randmeere 27–38 Mio. km²).

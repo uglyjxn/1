@@ -46,6 +46,7 @@
     ['#/karte/sonnensystem', '☉', 'Karte des Sonnensystems', 'Bahnen (logarithmisch), Sperrzone der Sonne und besiedelte Körper.'],
     ['#/karte/handel', '⇄', 'Handelsnetz', 'Alle Linien mit Flottenstärke und Reisezeit auf der Sternkarte.'],
     ['#/karte/toi700', '✺', 'TOI-700-System', 'Alle vier Planeten des TOI-700-Systems maßstäblich mit habitabler Zone.'],
+    ['#/karte/toi700b', '▣', 'TOI-700 d: Bandkarte', 'Draufsicht auf das Band: Gelände, Höhen, Regen, Temperatur, Vegetation, Flüsse.'],
     ['#/karte/toi700o', '◍', 'TOI-700 d: Oberfläche', 'Weltkarte der Oberfläche: Sonnenseite, Ring mit Wäldern und Randmeeren, Schattenseite.'],
     ['#/karte/toi700d', '◐', 'TOI-700 d: Zonen', 'Die drei Zonen der gebunden rotierenden Welt.'],
     ['#/konzerne', '⛓', 'Konzernnetz', 'Beteiligungen und Töchter der großen Konzerne, des Kontors und des Bundes.'],
