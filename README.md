@@ -1,0 +1,23 @@
+# Solarpedia
+
+Desktop-App (Electron) zum Lesen der Dossiers 2234/2235 im Stil von Wikipedia, mit dunklem Theme.
+
+- 334 Artikel aus 18 PDFs (Einzeldossiers, Setting-Zusammenfassung, Solares Rechtsbuch)
+- Automatische Querverweise (Hyperlinks) zwischen Artikeln, Paragraphen (§) und Ref-IDs (2234-A7x)
+- Volltextsuche mit Schnellvorschlägen (`/` oder `Strg+K`), Hervorhebung der Treffer, Suche auf der Seite (`Strg+F`)
+- Inhaltsverzeichnis, Infoboxen, Tabellen, Abbildungen (Klick = Vergrößern), „Verweise auf diesen Artikel“
+- Original-PDF per Klick öffnen
+
+## Starten
+```
+npm install
+npm start
+```
+Installer bauen: `npm run dist` (bzw. `dist:win`, `dist:mac`, `dist:linux`).
+
+## Daten neu erzeugen (optional)
+Die fertigen Daten liegen in `app/data/articles.js`. Zum Neuaufbau aus den PDFs
+(benötigt `pdftohtml` aus poppler-utils und `pip install pymupdf`):
+```
+node tools/build-data.mjs <Ordner mit entpacktem ZIP>
+```

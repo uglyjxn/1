@@ -1,0 +1,51 @@
+{
+  "name": "solarpedia",
+  "productName": "Solarpedia",
+  "version": "1.0.0",
+  "description": "Wikipedia-artiges Nachschlagewerk für die Dossiers der Solarrepublik 2234/2235",
+  "main": "app/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:data": "node tools/build-data.mjs",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win portable nsis",
+    "dist:mac": "electron-builder --mac dmg",
+    "dist:linux": "electron-builder --linux AppImage deb"
+  },
+  "build": {
+    "appId": "de.solarpedia.app",
+    "productName": "Solarpedia",
+    "files": [
+      "app/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "mac": {
+      "category": "public.app-category.reference",
+      "target": [
+        "dmg"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Education"
+    }
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3"
+  }
+}

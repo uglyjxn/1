@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <title>Solarpedia</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header id="topbar">
+    <button id="menu-btn" class="icon-btn" title="Menü" aria-label="Menü">☰</button>
+    <a id="logo" href="#/" title="Hauptseite">
+      <span class="logo-mark" aria-hidden="true">☉</span>
+      <span class="logo-text"><b>Solar</b>pedia<small>Das freie Dossier-Archiv</small></span>
+    </a>
+    <div class="nav-btns">
+      <button id="back-btn" class="icon-btn" title="Zurück (Alt+←)" aria-label="Zurück">←</button>
+      <button id="fwd-btn" class="icon-btn" title="Vor (Alt+→)" aria-label="Vor">→</button>
+    </div>
+    <form id="search-form" role="search" autocomplete="off">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input id="search-input" type="search" placeholder="Solarpedia durchsuchen  ( / )" aria-label="Suche" spellcheck="false">
+      <ul id="suggest" role="listbox" hidden></ul>
+    </form>
+  </header>
+
+  <div id="findbar" hidden>
+    <input id="find-input" type="text" placeholder="Auf der Seite suchen …" spellcheck="false">
+    <button id="find-prev" title="Vorheriger Treffer">↑</button>
+    <button id="find-next" title="Nächster Treffer">↓</button>
+    <button id="find-close" title="Schließen (Esc)">✕</button>
+  </div>
+
+  <div id="layout">
+    <aside id="sidebar">
+      <nav class="portlet" aria-label="Navigation">
+        <h3>Navigation</h3>
+        <ul>
+          <li><a href="#/">Hauptseite</a></li>
+          <li><a href="#/index">Alle Artikel</a></li>
+          <li><a href="#/random" id="random-link">Zufälliger Artikel</a></li>
+        </ul>
+      </nav>
+      <nav class="portlet" id="toc-portlet" hidden aria-label="Inhaltsverzeichnis">
+        <h3>Inhaltsverzeichnis</h3>
+        <div id="toc"></div>
+      </nav>
+      <nav class="portlet" id="tools-portlet" hidden aria-label="Werkzeuge">
+        <h3>Werkzeuge</h3>
+        <ul>
+          <li><a href="#" id="pdf-link">Original-PDF öffnen</a></li>
+          <li><a href="#" id="find-link">Auf der Seite suchen</a></li>
+          <li><a href="#" id="print-link">Seite drucken</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <main id="main" tabindex="-1">
+      <article id="page"></article>
+      <footer id="footer">
+        <p>Solarpedia – ein Nachschlagewerk zu den Dossiers 2234 der Solarrepublik. Alle Inhalte stammen aus den mitgelieferten Dossiers; im Konfliktfall gelten die Originale.</p>
+      </footer>
+    </main>
+  </div>
+  <div id="scrim" hidden></div>
+
+  <script src="data/articles.js"></script>
+  <script src="search.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
