@@ -37,3 +37,7 @@ Neu geschriebene Artikel erscheinen, sobald das App-Fenster wieder den Fokus bek
 ### Bestehende Artikel bearbeiten
 `edit_article` (Text ersetzen, Abschnitte anhängen/ersetzen/löschen) und `revert_edits` wirken auf Dossier-Artikel und eigene Artikel.
 Die Änderungen liegen als JSON in `user-articles/_edits/`, die Original-PDFs bleiben unberührt. In der App erscheint ein Hinweis „Bearbeitet“.
+
+### Installierte App (`npm run dist:win`) und MCP
+Die installierte App liest eigene Artikel aus `<Benutzerordner>\Solarpedia\user-articles`. Damit Claude (MCP) denselben Ordner nutzt, in der
+`claude_desktop_config.json` ergänzen: `"env": { "SOLARPEDIA_USER_DIR": "C:\\Users\\NAME\\Solarpedia\\user-articles" }`.

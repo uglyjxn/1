@@ -35,7 +35,7 @@ function createWindow() {
 
 function userDir() {
   if (process.env.SOLARPEDIA_USER_DIR) return process.env.SOLARPEDIA_USER_DIR;
-  return app.isPackaged ? path.join(app.getPath('userData'), 'user-articles') : path.join(__dirname, '..', 'user-articles');
+  return app.isPackaged ? path.join(require('node:os').homedir(), 'Solarpedia', 'user-articles') : path.join(__dirname, '..', 'user-articles');
 }
 ipcMain.handle('user-articles', () => {
   const dir = userDir();
