@@ -180,7 +180,7 @@
       <div class="tabs"><span class="tab active">Artikel</span><span class="tab-spacer"></span>${a.pdf ? `<a class="tab" href="#" data-act="pdf" title="Das Original-Dossier als PDF öffnen">PDF öffnen ↗</a>` : ''}</div>
       ${crumbs(a)}
       <h1 id="top" class="firstHeading">${esc(a.title)}</h1>
-      <div class="subtitle">${a.category ? `<span class="chip">${esc(a.category.charAt(0) + a.category.slice(1).toLowerCase())}</span> ` : ''}${kindLabel ? `<span class="chip alt">${kindLabel}</span> ` : ''}${a.edited ? '<span class="chip warn" title="Dieser Artikel wurde nachträglich bearbeitet">Bearbeitet</span> ' : ''}${subtitle}</div>
+      <div class="subtitle">${a.category ? `<span class="chip">${esc(a.user ? a.category : a.category.charAt(0) + a.category.slice(1).toLowerCase())}</span> ` : ''}${kindLabel ? `<span class="chip alt">${kindLabel}</span> ` : ''}${a.edited ? '<span class="chip warn" title="Dieser Artikel wurde nachträglich bearbeitet">Bearbeitet</span> ' : ''}${subtitle}</div>
       ${hl && hl.length ? `<div class="hl-note">Suchbegriffe hervorgehoben: <b>${esc(hl.join(', '))}</b> <button data-act="clear-hl">Hervorhebung entfernen</button></div>` : ''}
       <div id="content" class="content">
         ${renderBlocks(a)}

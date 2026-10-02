@@ -12,11 +12,13 @@
     const byId = new Map(articles.map(a => [a.id, a]));
     const byName = new Map();
     const add = (name, a, anchor) => { const k = fold(name); if (k.length >= 3 && !byName.has(k)) byName.set(k, { id: a.id, anchor: anchor || '' }); };
-    for (const a of articles) { add(a.title, a); add(a.title.replace(/\s*\([^)]*\)/g, ''), a); }
+    const variants = t => { const o = new Set([t, t.replace(/\s*\([^)]*\)/g, ''), t.replace(/^\d+\.\s+/, '')]); for (const x of [...o]) for (const part of x.split(/:\s+|\s+[–|]\s+/)) if (part.length >= 3) o.add(part.trim()); return [...o]; };
+    for (const a of articles) for (const v of variants(a.title)) add(v, a);
     for (const a of articles) {
-      for (const t of a.toc || []) if (t.level >= 3 && !/^§/.test(t.text)) add(t.text.replace(/\s*\([^)]*\)/g, ''), a, t.id);
+      for (const t of a.toc || []) if (t.level >= 3 && !/^§/.test(t.text)) for (const v of variants(t.text)) add(v, a, t.id);
     }
     const resolve = ref => {
+      ref = ref.replace(/&amp;/g, '&');
       const [r, anchor] = ref.split('#');
       if (byId.has(r.trim())) return { id: r.trim(), anchor: anchor || '' };
       const hit = byName.get(fold(r));
@@ -70,7 +72,7 @@
       }
       if (t.startsWith('|')) {
         flush(); const rows = [];
-        while (i < lines.length && lines[i].trim().startsWith('|')) { rows.push(lines[i].trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim())); i++; }
+        while (i < lines.length && lines[i].trim().startsWith('|')) { rows.push(lines[i].trim().replace(/\[\[[^\]]*\]\]/g, m => m.replace(/\|/g, '\u0001')).replace(/^\||\|$/g, '').split('|').map(c => c.trim().replace(/\u0001/g, '|'))); i++; }
         i--;
         const sep = rows.length > 1 && rows[1].every(c => /^:?-{2,}:?$/.test(c));
         const head = (sep ? rows[0] : rows[0].map(() => '')).map(c => inline(c, id));

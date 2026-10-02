@@ -41,3 +41,7 @@ Die Änderungen liegen als JSON in `user-articles/_edits/`, die Original-PDFs bl
 ### Installierte App (`npm run dist:win`) und MCP
 Die installierte App liest eigene Artikel aus `<Benutzerordner>\Solarpedia\user-articles`. Damit Claude (MCP) denselben Ordner nutzt, in der
 `claude_desktop_config.json` ergänzen: `"env": { "SOLARPEDIA_USER_DIR": "C:\\Users\\NAME\\Solarpedia\\user-articles" }`.
+
+### Mitgelieferte Ergänzungsartikel
+Der Ordner `user-articles/` enthält 94 Ergänzungsartikel (Geschichte, Politik, Technik, Gesellschaft, Wirtschaft u. a.) und 15 Bearbeitungen bestehender Dossier-Artikel (`_edits/`).
+Beim Start von `npm start` werden sie automatisch geladen. Die Kategorie-Etiketten „Kanon“, „Entwurf“ und „Gerücht“ zeigen den Status; siehe den Artikel „Kanon-Status und Quellenhinweise“.
