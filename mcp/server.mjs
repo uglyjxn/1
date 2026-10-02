@@ -20,8 +20,12 @@ const baseArticles = BASE.articles;
 let docs = BASE.docs, articles = baseArticles, byId = new Map(articles.map(a => [a.id, a])), userBroken = {};
 
 function readUser() {
-  if (!fs.existsSync(userDir)) return [];
-  return fs.readdirSync(userDir).filter(f => f.endsWith('.md')).map(f => ({ id: f.replace(/\.md$/, ''), md: fs.readFileSync(path.join(userDir, f), 'utf8') }));
+  const out = { articles: [], edits: [] };
+  if (!fs.existsSync(userDir)) return out;
+  for (const f of fs.readdirSync(userDir)) if (f.endsWith('.md')) out.articles.push({ id: f.replace(/\.md$/, ''), md: fs.readFileSync(path.join(userDir, f), 'utf8') });
+  const ed = path.join(userDir, '_edits');
+  if (fs.existsSync(ed)) for (const f of fs.readdirSync(ed)) if (f.endsWith('.json')) { try { out.edits.push({ id: f.replace(/\.json$/, ''), ops: JSON.parse(fs.readFileSync(path.join(ed, f), 'utf8')) }); } catch { /* ignorieren */ } }
+  return out;
 }
 
 const dec = s => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
@@ -71,9 +75,11 @@ let index = baseIndex;
 // bei jedem Aufruf: eigene Artikel neu einlesen
 function refresh() {
   const W = { docs: BASE.docs.slice(), articles: baseArticles.slice() };
-  userBroken = UA.merge(W, readUser()).broken;
+  const u = readUser();
+  userBroken = UA.merge(W, u.articles, u.edits).broken;
   docs = W.docs; articles = W.articles; byId = new Map(articles.map(a => [a.id, a]));
-  index = baseIndex.concat(articles.slice(baseArticles.length).map(mkIndex));
+  const editedIds = new Set(u.edits.map(e => e.id));
+  index = articles.map((a, i) => (i < baseArticles.length && !editedIds.has(a.id) ? baseIndex[i] : mkIndex(a)));
 }
 refresh();
 
@@ -149,6 +155,45 @@ server.tool('delete_article', 'Löscht einen eigenen Artikel (nur Artikel, die m
     const f = path.join(userDir, path.basename(id) + '.md');
     if (!fs.existsSync(f)) return text(`Kein eigener Artikel mit der id "${id}".`);
     fs.unlinkSync(f); refresh(); return text(`Gelöscht: ${id}`);
+  });
+
+const editFile = id => path.join(userDir, '_edits', path.basename(id) + '.json');
+const OPS = z.array(z.object({
+  op: z.enum(['replace_text', 'append', 'replace_section', 'delete_section']).describe('replace_text: find+replace; append: content (+ optional heading = ans Ende dieses Abschnitts, sonst Artikelende); replace_section: heading+content (Überschrift bleibt); delete_section: heading'),
+  find: z.string().optional().describe('replace_text: exakter sichtbarer Text, wie ihn get_article zeigt – ohne [[ ]]-Verweise'),
+  replace: z.string().optional().describe('replace_text: neuer Text, darf [[Links]] und **fett** enthalten'),
+  heading: z.string().optional().describe('Überschrift des Abschnitts (Teilstring genügt)'),
+  content: z.string().optional().describe('Markdown für append/replace_section, darf "## Neuer Abschnitt" enthalten'),
+})).min(1);
+
+server.tool('edit_article', 'Bearbeitet einen BESTEHENDEN Artikel (Dossier-Artikel oder eigener Artikel): Text ersetzen, Abschnitte ergänzen, ersetzen oder löschen. Infoboxen, Tabellen und Bilder bleiben erhalten. Die Originaldossiers werden nicht verändert; Änderungen liegen als Zusatz darüber und lassen sich mit revert_edits zurücknehmen. Lies den Artikel vorher mit get_article. ' + GUIDE,
+  { id: z.string().describe('Artikel-ID'), operations: OPS },
+  async ({ id, operations }) => {
+    refresh();
+    if (!byId.has(id) || byId.get(id).kind === 'doc' && id === 'eigene-artikel') return text(`Artikel "${id}" nicht gefunden.`);
+    const ops = operations.map(o => ({ ...o }));
+    const missing = ops.filter(o => (o.op === 'replace_text' && (o.find == null || o.replace == null)) || ((o.op === 'append' || o.op === 'replace_section') && !o.content) || ((o.op === 'replace_section' || o.op === 'delete_section') && !o.heading));
+    if (missing.length) return text('Unvollständige Operation(en): ' + JSON.stringify(missing));
+    // Probelauf auf einer Kopie des aktuellen Artikels
+    const probe = JSON.parse(JSON.stringify(byId.get(id)));
+    const R = UA.makeResolver(articles);
+    const res = UA.applyEdits(probe, ops, R);
+    const okOps = ops.filter((_, i) => res.report[i].ok);
+    if (okOps.length) {
+      fs.mkdirSync(path.dirname(editFile(id)), { recursive: true });
+      const prev = fs.existsSync(editFile(id)) ? JSON.parse(fs.readFileSync(editFile(id), 'utf8')) : [];
+      fs.writeFileSync(editFile(id), JSON.stringify(prev.concat(okOps), null, 1));
+    }
+    refresh();
+    return text(`Artikel "${byId.get(id).title}" (${id}):\n` + res.report.map((r, i) => `${r.ok ? '✔' : '✘'} ${i + 1}. ${r.op}: ${r.msg}`).join('\n') + (res.broken.length ? `\nACHTUNG, nicht auflösbare Links (rot dargestellt): ${res.broken.join(', ')}` : '') + (okOps.length ? '\nGespeichert. Die App zeigt die Änderung beim nächsten Fokus des Fensters.' : '\nNichts gespeichert.'));
+  });
+
+server.tool('revert_edits', 'Nimmt alle mit edit_article gemachten Änderungen an einem Artikel zurück (Originalzustand).',
+  { id: z.string() },
+  async ({ id }) => {
+    const f = editFile(id);
+    if (!fs.existsSync(f)) return text(`Keine Bearbeitungen für "${id}" vorhanden.`);
+    fs.unlinkSync(f); refresh(); return text(`Bearbeitungen an "${id}" zurückgenommen.`);
   });
 
 await server.connect(new StdioServerTransport());

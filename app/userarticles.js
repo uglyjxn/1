@@ -12,8 +12,8 @@
     const byId = new Map(articles.map(a => [a.id, a]));
     const byName = new Map();
     const add = (name, a, anchor) => { const k = fold(name); if (k.length >= 3 && !byName.has(k)) byName.set(k, { id: a.id, anchor: anchor || '' }); };
+    for (const a of articles) { add(a.title, a); add(a.title.replace(/\s*\([^)]*\)/g, ''), a); }
     for (const a of articles) {
-      add(a.title, a); add(a.title.replace(/\s*\([^)]*\)/g, ''), a);
       for (const t of a.toc || []) if (t.level >= 3 && !/^§/.test(t.text)) add(t.text.replace(/\s*\([^)]*\)/g, ''), a, t.id);
     }
     const resolve = ref => {
@@ -96,9 +96,97 @@
     return { broken: [...new Set(broken)], links: [...links], article: { id, title, kind: 'article', doc: ROOT_ID, docTitle: 'Eigene Artikel', ref: '', pdf: '', parent: ROOT_ID, category, user: true, blocks, children: [], toc, search } };
   }
 
+
+  // ---------- Bearbeitungen bestehender Artikel ----------
+  const textFields = b => {
+    const f = [];
+    const add = (get, set) => f.push([get, set]);
+    if (b.html != null) add(() => b.html, v => { b.html = v; });
+    if (b.caption) add(() => b.caption, v => { b.caption = v; });
+    if (b.items) b.items.forEach((_, i) => add(() => b.items[i], v => { b.items[i] = v; }));
+    if (b.head) b.head.forEach((_, i) => add(() => b.head[i], v => { b.head[i] = v; }));
+    if (b.rows) b.rows.forEach((r, y) => r.forEach((_, x) => add(() => b.rows[y][x], v => { b.rows[y][x] = v; })));
+    if (b.pairs) b.pairs.forEach((_, i) => add(() => b.pairs[i][1], v => { b.pairs[i][1] = v; }));
+    if (b.cells) b.cells.forEach((_, i) => add(() => b.cells[i][1], v => { b.cells[i][1] = v; }));
+    if (b.parts) b.parts.forEach((_, i) => add(() => b.parts[i], v => { b.parts[i] = v; }));
+    return f;
+  };
+  const stripAnchors = h => h.replace(/<a [^>]*>|<\/a>/g, '');
+
+  function replaceInHtml(html, find, repl) {
+    const f = esc(find); let n = 0, out = '', pos = 0, idx;
+    while ((idx = html.indexOf(f, pos)) !== -1) {
+      // nur im sichtbaren Text, nicht innerhalb eines Tags
+      const before = html.slice(0, idx);
+      if (before.lastIndexOf('<') > before.lastIndexOf('>')) { out += html.slice(pos, idx + f.length); pos = idx + f.length; continue; }
+      const inAnchor = (before.match(/<a /g) || []).length > (before.match(/<\/a>/g) || []).length;
+      out += html.slice(pos, idx) + (inAnchor ? stripAnchors(repl) : repl); pos = idx + f.length; n++;
+    }
+    return { html: out + html.slice(pos), n };
+  }
+
+  const headIdx = (blocks, heading) => {
+    const k = fold(heading);
+    let i = blocks.findIndex(b => b.t === 'h' && fold(b.text) === k);
+    if (i < 0) i = blocks.findIndex(b => b.t === 'h' && (fold(b.text).includes(k) || b.id === heading));
+    return i;
+  };
+  const sectionEnd = (blocks, i) => { const lvl = blocks[i].level; let j = i + 1; while (j < blocks.length && !(blocks[j].t === 'h' && blocks[j].level <= lvl)) j++; return j; };
+
+  function reindex(a) {
+    const seen = new Set(); a.toc = []; a.search = [];
+    for (const b of a.blocks) {
+      if (b.t === 'h') { let id = b.id && !seen.has(b.id) ? b.id : slug(b.text.replace(/^§\s*/, 'p')); while (seen.has(id)) id += '-2'; seen.add(id); b.id = id; a.toc.push({ id, level: b.level, text: b.text }); a.search.push({ h: id, text: b.text }); }
+      else if (b.t === 'p' || b.t === 'callout') a.search.push({ text: strip(b.html) });
+      else if (b.t === 'ul') a.search.push({ text: b.items.map(strip).join(' • ') });
+      else if (b.t === 'table') a.search.push({ text: [b.head.map(strip).join(' | '), ...b.rows.map(r => r.map(strip).join(' | '))].join(' \n ') });
+      else if (b.t === 'infobox') a.search.push({ text: b.pairs.map(([l, v]) => l + ': ' + strip(v)).join('; ') });
+      else if (b.t === 'facts') a.search.push({ text: b.cells.map(([l, v]) => l + ': ' + strip(v)).join('; ') });
+      else if (b.t === 'figure' || b.t === 'caption') a.search.push({ text: strip(b.caption || b.html || '') });
+      else if (b.t === 'strip') a.search.push({ text: b.parts.map(strip).join(' · ') });
+    }
+  }
+
+  // ops: replace_text{find,replace} | append{content,heading?} | replace_section{heading,content} | delete_section{heading}
+  function applyEdits(a, ops, R) {
+    const report = [], broken = [];
+    for (const op of ops) {
+      try {
+        if (op.op === 'replace_text') {
+          const pr = parse(a.id, op.replace, R); broken.push(...pr.broken);
+          const repl = pr.article.blocks.filter(b => b.t === 'p').map(b => b.html).join(' ') || esc(op.replace);
+          let n = 0;
+          for (const b of a.blocks) {
+            if (b.t === 'h') { const t = op.find; if (b.text.includes(t)) { b.text = b.text.split(t).join(strip(repl)); n++; } continue; }
+            for (const [get, set] of textFields(b)) { const r = replaceInHtml(get(), op.find, repl); if (r.n) { set(r.html); n += r.n; } }
+          }
+          report.push({ ok: n > 0, op: op.op, msg: n ? `${n}× ersetzt` : `Text "${op.find}" nicht gefunden (muss exakt dem sichtbaren Text entsprechen, ohne [[ ]])` });
+        } else if (op.op === 'append' || op.op === 'replace_section') {
+          const pr = parse(a.id, op.content, R); broken.push(...pr.broken);
+          const nb = pr.article.blocks;
+          if (op.op === 'append' && !op.heading) { a.blocks.push(...nb); report.push({ ok: true, op: op.op, msg: `${nb.length} Block/Blöcke am Ende angehängt` }); }
+          else {
+            const i = headIdx(a.blocks, op.heading || '');
+            if (i < 0) { report.push({ ok: false, op: op.op, msg: `Überschrift "${op.heading}" nicht gefunden. Verfügbar: ${a.blocks.filter(b => b.t === 'h').map(b => b.text).join('; ')}` }); continue; }
+            const e = sectionEnd(a.blocks, i);
+            if (op.op === 'append') a.blocks.splice(e, 0, ...nb); else a.blocks.splice(i + 1, e - i - 1, ...nb);
+            report.push({ ok: true, op: op.op, msg: `Abschnitt "${a.blocks[i].text}": ${nb.length} Block/Blöcke ${op.op === 'append' ? 'angehängt' : 'ersetzt'}` });
+          }
+        } else if (op.op === 'delete_section') {
+          const i = headIdx(a.blocks, op.heading || '');
+          if (i < 0) { report.push({ ok: false, op: op.op, msg: `Überschrift "${op.heading}" nicht gefunden` }); continue; }
+          const e = sectionEnd(a.blocks, i); const name = a.blocks[i].text; a.blocks.splice(i, e - i);
+          report.push({ ok: true, op: op.op, msg: `Abschnitt "${name}" gelöscht` });
+        } else report.push({ ok: false, op: op.op, msg: 'Unbekannte Operation' });
+      } catch (err) { report.push({ ok: false, op: op.op, msg: String(err) }); }
+    }
+    reindex(a); a.edited = true;
+    return { report, broken: [...new Set(broken)] };
+  }
+
   // Alle eigenen Artikel (Liste {id, md}) in das Wiki einbauen
-  function merge(W, list) {
-    if (!list.length) return { broken: {} };
+  function merge(W, list, edits = []) {
+    if (!list.length && !edits.length) return { broken: {} };
     const baseArticles = W.articles.slice();
     const root = { id: ROOT_ID, title: 'Eigene Artikel', kind: 'doc', doc: ROOT_ID, docTitle: 'Eigene Artikel', ref: 'Eigene', subtitle: 'Von Claude oder dir verfasste Artikel', pdf: '', blocks: [{ t: 'p', html: 'Diese Artikel wurden nicht aus den Dossiers übernommen, sondern ergänzend verfasst. Sie sind mit den Dossier-Artikeln verlinkt.' }], children: [], toc: [], search: [{ text: 'Eigene Artikel' }], user: true };
     const first = list.map(x => { const t = (x.md.match(/^#\s+(.*)$/m) || [, x.id])[1].trim(); const toc = [...x.md.matchAll(/^#{2,3}\s+(.*)$/gm)].map(m => ({ id: slug(m[1]), level: 3, text: m[1].trim() })); return { id: x.id, title: t, kind: 'article', toc }; });
@@ -110,13 +198,25 @@
       root.children.push(p.article.id);
       W.articles.push(p.article);
     }
-    W.articles.push(root);
+    if (list.length) W.articles.push(root);
     const wc = a => a.search.reduce((n, s) => n + (s.text || '').split(/\s+/).length, 0);
-    W.docs.push({ id: ROOT_ID, title: root.title, subtitle: root.subtitle, ref: 'Eigene', pdf: '', pages: 0, desc: 'Ergänzende Artikel, die nicht aus den Dossiers stammen.', count: list.length + 1 });
+    if (list.length) W.docs.push({ id: ROOT_ID, title: root.title, subtitle: root.subtitle, ref: 'Eigene', pdf: '', pages: 0, desc: 'Ergänzende Artikel, die nicht aus den Dossiers stammen.', count: list.length + 1 });
+    const R2 = makeResolver(W.articles);
+    const byId = new Map(W.articles.map(a => [a.id, a]));
+    const editReport = {};
+    for (const e of edits) {
+      const orig = byId.get(e.id);
+      if (!orig) continue;
+      const a = JSON.parse(JSON.stringify(orig));
+      W.articles[W.articles.indexOf(orig)] = a; byId.set(e.id, a);
+      const r = applyEdits(a, e.ops, R2);
+      if (r.broken.length) broken[e.id] = (broken[e.id] || []).concat(r.broken);
+      editReport[e.id] = r.report;
+    }
     return { broken };
   }
 
-  const api = { parse, merge, makeResolver, slug, ROOT_ID };
+  const api = { parse, merge, makeResolver, applyEdits, slug, ROOT_ID };
   root.UserArticles = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

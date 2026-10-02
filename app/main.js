@@ -39,10 +39,16 @@ function userDir() {
 }
 ipcMain.handle('user-articles', () => {
   const dir = userDir();
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir).filter(f => f.endsWith('.md')).map(f => ({
-    id: f.replace(/\.md$/, ''), md: fs.readFileSync(path.join(dir, f), 'utf8'), mtime: fs.statSync(path.join(dir, f)).mtimeMs,
-  }));
+  const out = { articles: [], edits: [] };
+  if (!fs.existsSync(dir)) return out;
+  for (const f of fs.readdirSync(dir)) {
+    if (f.endsWith('.md')) out.articles.push({ id: f.replace(/\.md$/, ''), md: fs.readFileSync(path.join(dir, f), 'utf8'), mtime: fs.statSync(path.join(dir, f)).mtimeMs });
+  }
+  const ed = path.join(dir, '_edits');
+  if (fs.existsSync(ed)) for (const f of fs.readdirSync(ed)) if (f.endsWith('.json')) {
+    try { out.edits.push({ id: f.replace(/\.json$/, ''), ops: JSON.parse(fs.readFileSync(path.join(ed, f), 'utf8')), mtime: fs.statSync(path.join(ed, f)).mtimeMs }); } catch { /* defekte Datei ignorieren */ }
+  }
+  return out;
 });
 
 ipcMain.handle('open-pdf', async (_e, name) => {

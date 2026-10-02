@@ -319,3 +319,4 @@ button.more { margin: 18px auto 0; display: block; padding: 0 26px; }
 }
 
 .redlink { color: #ff8a80; border-bottom: 1px dotted #ff8a80; cursor: help; }
+.chip.warn { background: #4a3a14; color: #f0c26a; }

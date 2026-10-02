@@ -33,3 +33,7 @@ Eintrag in Claude Desktop (Einstellungen → Entwickler → Konfiguration bearbe
 Der MCP-Server hat zusätzlich `write_article` und `delete_article`. Die Artikel liegen als Markdown-Dateien in `user-articles/`
 (über `SOLARPEDIA_USER_DIR` änderbar), erscheinen in der App unter „Eigene Artikel“ und sind per `[[Titel]]` / `[[artikel-id]]` verlinkbar.
 Neu geschriebene Artikel erscheinen, sobald das App-Fenster wieder den Fokus bekommt.
+
+### Bestehende Artikel bearbeiten
+`edit_article` (Text ersetzen, Abschnitte anhängen/ersetzen/löschen) und `revert_edits` wirken auf Dossier-Artikel und eigene Artikel.
+Die Änderungen liegen als JSON in `user-articles/_edits/`, die Original-PDFs bleiben unberührt. In der App erscheint ein Hinweis „Bearbeitet“.
