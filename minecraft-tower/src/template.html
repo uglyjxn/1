@@ -1,0 +1,108 @@
+<title>Ten Hall Floors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: masthead, a gallery of ten floor thumbnails, then one floor at a time (plan left, in-game view + palette + build guide right) */
+:root {
+  --bg: #eceee9; --panel: #ffffff; --fg: #182019; --muted: #5a665e; --line: #cfd5cd;
+  --accent: #2f5bd3; --accent-fg: #ffffff; --chip: #e2e6df; --stage: #12171b; --stage-line: #2b343a;
+  --font-display: "Pixelify Sans", "Courier New", monospace;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0f1316; --panel: #171c20; --fg: #e5ebe6; --muted: #98a59d; --line: #2a3237; --accent: #8aa9ff; --accent-fg: #0b1020; --chip: #232b30; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0f1316; --panel: #171c20; --fg: #e5ebe6; --muted: #98a59d; --line: #2a3237; --accent: #8aa9ff; --accent-fg: #0b1020; --chip: #232b30; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--font-body); margin: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
+h1, h2, h3 { margin: 0; font-weight: 600; text-wrap: balance; }
+h1 { font: 700 clamp(34px, 6vw, 56px)/1 var(--font-display); letter-spacing: .01em; }
+h2 { font: 700 clamp(26px, 4vw, 38px)/1.05 var(--font-display); }
+h3 { font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; font-weight: 600; }
+p { margin: 0; }
+.lede { max-width: 62ch; color: var(--muted); margin-top: 12px; font-size: 16px; }
+.mono { font-family: var(--font-mono); }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 22px; }
+.fact { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; min-width: 0; }
+.fact b { display: block; font: 600 20px/1.2 var(--font-mono); font-variant-numeric: tabular-nums; }
+.fact span { color: var(--muted); font-size: 12.5px; }
+.assume { margin-top: 14px; font-size: 13px; color: var(--muted); }
+.assume code, .notes code { font-family: var(--font-mono); font-size: 12px; background: var(--chip); padding: 1px 5px; border-radius: 3px; }
+.gallery { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 12px; }
+.gallery button { all: unset; box-sizing: border-box; width: 100%; display: grid; gap: 8px; padding: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
+.gallery button:hover { border-color: var(--accent); }
+.gallery button:focus-visible, .seg button:focus-visible, .tog:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.gallery button[aria-current="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.gallery canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; border-radius: 3px; aspect-ratio: 35 / 58; background: var(--stage); }
+.gallery .gh { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; align-items: baseline; }
+.gallery .num { font: 700 20px/1 var(--font-display); color: var(--accent); }
+.gallery .nm { font-weight: 600; font-size: 13.5px; line-height: 1.25; }
+.stage { background: var(--stage); border: 1px solid var(--stage-line); border-radius: 6px; overflow: hidden; }
+.stage canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.detail { margin-top: 48px; scroll-margin-top: 16px; }
+.fh { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.fh .fnum { font: 700 clamp(44px, 8vw, 76px)/.9 var(--font-display); color: var(--accent); }
+.fh .ytag { font: 400 12.5px var(--font-mono); color: var(--muted); margin-left: auto; }
+.fh .tagline { flex-basis: 100%; color: var(--muted); font-size: 16px; }
+.cols { display: grid; grid-template-columns: minmax(0, 592px) minmax(0, 1fr); gap: 28px; margin-top: 22px; align-items: start; }
+.col { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 26px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 10px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+.seg button, .tog { all: unset; box-sizing: border-box; padding: 5px 11px; font-size: 13px; cursor: pointer; color: var(--fg); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"], .tog[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.tog { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.tbl { color: var(--muted); font-size: 12.5px; }
+.readout { font: 12px/1.4 var(--font-mono); color: var(--muted); min-height: 2.8em; margin-top: 8px; }
+.concept { font-size: 16px; max-width: 66ch; }
+.palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.pal { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 10px; align-items: center; }
+.pal canvas { width: 44px; height: 44px; image-rendering: pixelated; border-radius: 3px; background: repeating-conic-gradient(#8884 0 25%, #0000 0 50%) 0 0/10px 10px; }
+.pal .role { font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.pal .bn { font-weight: 600; font-size: 13.5px; line-height: 1.25; overflow-wrap: anywhere; }
+.pal .bid { font: 400 10.5px var(--font-mono); color: var(--muted); overflow-wrap: anywhere; }
+.rooms { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.rooms li { display: grid; grid-template-columns: minmax(110px, 170px) minmax(0, 1fr); gap: 4px 16px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.rooms li b { font-weight: 600; }
+.rooms li span { color: var(--muted); }
+.notes { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.mats { display: grid; gap: 4px; }
+.mat { display: grid; grid-template-columns: 18px minmax(120px, 190px) minmax(0, 1fr) 118px; gap: 10px; align-items: center; font-size: 13px; }
+.mat canvas { width: 18px; height: 18px; image-rendering: pixelated; border-radius: 2px; }
+.mat .bar { height: 8px; background: var(--chip); border-radius: 2px; overflow: hidden; }
+.mat .bar i { display: block; height: 100%; background: var(--accent); }
+.mat .n { font: 400 12px var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.small { font-size: 12.5px; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -2px; margin-right: 5px; }
+@media (max-width: 960px) {
+  .cols { grid-template-columns: minmax(0, 1fr); }
+  .fh .ytag { margin-left: 0; flex-basis: 100%; }
+}
+@media (max-width: 560px) {
+  .mat { grid-template-columns: 18px minmax(0, 1fr) 90px; }
+  .mat .bar { grid-column: 2 / 4; grid-row: 2; }
+  .rooms li { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Ten Hall Floors</h1>
+    <p class="lede">Ten floor designs for one big hall in Minecraft Java 26.2. Every design covers a 35 by 58 block area and comes with its block palette, a textured plan, an in-game view and a build guide.</p>
+    <div class="facts" id="facts"></div>
+    <p class="assume">The floor is read as 35 blocks wide (west to east) and 58 blocks long (north to south), 2,030 blocks in all. Only long-standing blocks are used (resin, pale oak and copper bulbs are not needed), so none of it depends on anything specific to 26.2.</p>
+  </header>
+
+  <section aria-label="All designs">
+    <h3 style="margin-top:34px">Pick a floor</h3>
+    <ol class="gallery" id="gallery"></ol>
+  </section>
+
+  <article class="detail" id="detail" aria-live="polite"></article>
+</div>
+
+<!--SCRIPT-->
