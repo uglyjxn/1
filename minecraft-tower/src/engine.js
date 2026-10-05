@@ -80,6 +80,9 @@ d('resin_bricks', '#d65c1a', 'b'); d('resin_block', '#e06a20', 'n');
 d('blue_terracotta', '#4a3b5b', 'n'); d('cut_sandstone', '#dccf9c', 'c'); d('chiseled_stone_bricks', '#7a7a7a', 'c');
 d('cracked_stone_bricks', '#767676', 'b'); d('nether_bricks', '#2d1518', 'b'); d('red_nether_bricks', '#450709', 'b');
 d('bamboo_mosaic', '#bba454', 'c'); d('magma_block', '#8d3b13', 'e', { glow: true });
+d('andesite', '#878787', 'r'); d('granite', '#956756', 'r'); d('polished_granite', '#9a6a59', 'n'); d('diorite', '#bdbdc0', 'r', {}); d('dripstone_block', '#866b5a', 'r');
+d('basalt', '#4f4f54', 'l'); d('polished_basalt', '#5b5c61', 'l'); d('blackstone', '#2c262e', 'r'); d('sandstone', '#dbcf9d', 'n');
+d('gravel', '#837e7d', 'r'); d('mossy_cobblestone', '#6e7e5f', 'r'); d('quartz_block', '#ebe6dc', 'n'); d('deepslate', '#4f4f52', 'l');
 // wool & carpet
 const WOOLS = {
   white: '#e9ecec', red: '#a12722', blue: '#35399d', light_blue: '#3ab3da', yellow: '#f8c627', green: '#546d1b',

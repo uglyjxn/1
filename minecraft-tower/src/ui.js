@@ -11,12 +11,16 @@ function swatch(key, px) {
 
 const kinds = FL.map(f => f.counts.length);
 $('#facts').innerHTML = [
-  ['35 \u00d7 58', 'Blocks per floor'], ['2,030', 'Blocks to fill, about 32 stacks'], ['10', 'Designs, each with its own palette'], [Math.min(...kinds) + '\u2013' + Math.max(...kinds), 'Block types per design']
+  ['35 \u00d7 58', 'Blocks per floor'], ['2,030', 'Blocks to fill, about 32 stacks'], [String(FL.length), 'Designs, each with its own palette'], [Math.min(...kinds) + '\u2013' + Math.max(...kinds), 'Block types per design']
 ].map(a => '<div class="fact"><b>' + a[0] + '</b><span>' + a[1] + '</span></div>').join('');
 
 /* ---------- gallery ---------- */
 const gal = $('#gallery');
+const GROUPS = { 1: 'Set 1: decorative patterns', 2: 'Set 2: realistic stone' };
+let lastGroup = 0;
 FL.forEach(f => {
+  const g = f.group || 1;
+  if (g !== lastGroup) { lastGroup = g; const h = el('li', 'ghead', esc(GROUPS[g])); gal.appendChild(h); }
   const li = el('li'), b = el('button'); b.type = 'button'; b.dataset.n = f.n;
   b.innerHTML = '<canvas></canvas><span class="gh"><span class="num">' + f.n + '</span><span class="nm">' + esc(f.name) + '</span></span>';
   drawThumb($('canvas', b), f, 5);
@@ -90,4 +94,4 @@ function select(n, scroll) {
   if (scroll) d.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 const m = /^#f(\d+)$/.exec(location.hash);
-select(m && +m[1] >= 1 && +m[1] <= 10 ? +m[1] : 1, false);
+select(m && +m[1] >= 1 && +m[1] <= FL.length ? +m[1] : 1, false);
