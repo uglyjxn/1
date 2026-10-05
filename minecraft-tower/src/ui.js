@@ -16,7 +16,7 @@ $('#facts').innerHTML = [
 
 /* ---------- gallery ---------- */
 const gal = $('#gallery');
-const GROUPS = { 1: 'Set 1: decorative patterns', 2: 'Set 2: realistic stone' };
+const GROUPS = { 1: 'Set 1: decorative patterns', 2: 'Set 2: realistic stone', 3: 'Set 3: Victorian and 1920s' };
 let lastGroup = 0;
 FL.forEach(f => {
   const g = f.group || 1;

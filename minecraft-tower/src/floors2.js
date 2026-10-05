@@ -11,15 +11,15 @@ function voro(px, pz, S, seed) {
   return { id, d1, d2 };
 }
 function hexv(px, pz, S, seed) {
-  const RH = S * .866, j0 = Math.round(pz / RH); let d1 = 1e9, d2 = 1e9, id = 0;
+  const RH = S * .866, j0 = Math.round(pz / RH); let d1 = 1e9, d2 = 1e9, id = 0, ox = 0, oz = 0;
   for (let j = j0 - 1; j <= j0 + 1; j++) {
     const off = (j & 1) ? S / 2 : 0, i0 = Math.round((px - off) / S);
     for (let i = i0 - 1; i <= i0 + 1; i++) {
       const dd = Math.hypot(px - (i * S + off), pz - j * RH);
-      if (dd < d1) { d2 = d1; d1 = dd; id = i * 1000 + j; } else if (dd < d2) d2 = dd;
+      if (dd < d1) { d2 = d1; d1 = dd; id = i * 1000 + j; ox = px - (i * S + off); oz = pz - j * RH; } else if (dd < d2) d2 = dd;
     }
   }
-  return { id, d1, d2 };
+  return { id, d1, d2, ox, oz };
 }
 const angDiff = (a, b) => Math.atan2(Math.sin(a - b), Math.cos(a - b));
 const CASTLE_ROWS = (() => { const rows = []; for (let r = 0; r < 20; r++) { const b = [0]; let x = 0; while (x < 19) { x += 5 + Math.floor(h2(r, x, 50) * 5); b.push(x); } rows.push(b); } return rows; })();
