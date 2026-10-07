@@ -3,7 +3,7 @@
    Spawner farm: blocks, textures, voxel model, renderers.
    x west->east, z north->south, y up. One voxel = one block.
    ============================================================ */
-const FW = 37, FD = 37, FH = 11;
+const FW = 37, FD = 25, FH = 13;
 
 const BL = {};
 function d(key, name, col, pat, o) { BL[key] = Object.assign({ key, name, col, pat: pat || 'n' }, o || {}); }
@@ -16,7 +16,9 @@ d('water', 'Water', '#3d73e0', 'w', { alpha: 0.78 });
 d('hopper', 'Hopper', '#43434a', 'hp');
 d('chest', 'Chest', '#a06a2c', 'ch');
 d('spawner', 'Mob Spawner', '#16232c', 'sp', { glow: true, gcol: '#6fd0ff' });
-d('redstone_lamp', 'Redstone Lamp', '#f5c46f', 'e', { glow: true, gcol: '#ffcf80' });
+d('sea_lantern', 'Sea Lantern', '#c5e5da', 'e', { glow: true, gcol: '#bfe8e0' });
+d('cobblestone_wall', 'Cobblestone Wall', '#7b7b7b', 'r');
+d('gray_carpet', 'Gray Carpet', '#3e4447', 'n');
 d('oak_door', 'Oak Door', '#8b6b3a', 'p');
 d('player', 'You', '#2aa3b0', 'n', { virtual: true });
 

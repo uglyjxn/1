@@ -81,7 +81,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 <div class="wrap">
   <header>
     <h1>Mob Spawner Farm</h1>
-    <p class="lede">Four spawner chambers around one kill room. Water carries every mob to a pit under your feet, you kill them by hand through a hatch, and hoppers move the drops into a chest. Built for Minecraft Java 26.2 and sized for mobs from a zombie (1.95 tall) down to a cave spider (0.5 tall).</p>
+    <p class="lede">Three spawner chambers feed one pen by water. You stand in a gallery 2.5 blocks back from the pen edge, where mobs can’t reach you but your sword can reach them, and kill them by hand. Hoppers move all the drops into one shared chest. Built for Minecraft Java 26.2 and sized for mobs from a zombie (1.95 tall) down to a cave spider (0.5 tall).</p>
     <div class="facts" id="facts"></div>
   </header>
 
@@ -99,7 +99,7 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 
   <section id="layers">
     <div class="sec-h"><h2>Layer by layer</h2><p>Top-down plan of one height level at a time, the way you would build it. The darker, faded blocks show what sits one level below.</p></div>
-    <div class="toolbar"><div class="slider"><label for="ly">Layer</label><input id="ly" type="range" min="0" max="10" step="1" value="5"><b id="lyv">5</b></div><button class="tog" id="lyg" aria-pressed="false" type="button">4-block grid</button></div>
+    <div class="toolbar"><div class="slider"><label for="ly">Layer</label><input id="ly" type="range" min="0" max="12" step="1" value="5"><b id="lyv">5</b></div><button class="tog" id="lyg" aria-pressed="false" type="button">4-block grid</button></div>
     <div class="two">
       <div><div class="stage"><canvas id="plan"></canvas></div><div class="mono" id="ro" style="margin-top:8px;color:var(--muted);min-height:1.5em">Hover the plan for coordinates and the block.</div></div>
       <div class="col" id="laytext"></div>
@@ -107,17 +107,20 @@ ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
   </section>
 
   <section id="sect">
-    <div class="sec-h"><h2>Cross-section</h2><p>A vertical slice. The first position, 18, cuts straight through a spawner, the drop shaft, the channel, the kill pit and the hatch.</p></div>
+    <div class="sec-h"><h2>Cross-section</h2><p>A vertical slice. The first position, 18, cuts straight through the north spawner, its drop shaft and channel, the pen, the trench, the wall and the cell where you stand.</p></div>
     <div class="toolbar"><div class="seg" id="axseg"><button type="button" data-ax="x" aria-pressed="true">North to south</button><button type="button" data-ax="z" aria-pressed="false">West to east</button></div><div class="slider"><label for="sl">Slice at</label><input id="sl" type="range" min="0" max="36" step="1" value="18"><b id="slv">18</b></div></div>
     <div class="stage"><canvas id="sec"></canvas></div>
   </section>
 
   <section id="fit">
-    <div class="sec-h"><h2>Does every mob size fit?</h2><p>Mob hitboxes in Java: zombie 0.6 wide and 1.95 tall, spider 1.4 wide and 0.9 tall, cave spider 0.7 wide and 0.5 tall. Every passage the mobs use is checked against all three.</p></div>
+    <div class="sec-h"><h2>Does every mob size work?</h2><p>Mob hitboxes in Java: zombie 0.6 wide and 1.95 tall, spider 1.4 wide and 0.9 tall, cave spider 0.7 wide and 0.5 tall. Every passage is checked against all three, and so is the one distance that matters most: how far you stand from the pen edge.</p></div>
     <div class="tw"><table id="fitt"></table></div>
+    <h3 style="margin-top:22px">Reach check at the pen edge</h3>
+    <div class="tw"><table id="reach"></table></div>
+    <p class="small" style="margin-top:8px" id="reachn"></p>
     <div class="two" style="margin-top:18px">
       <div><h3>Channel cross-section, to scale</h3><div class="stage"><canvas id="dgA"></canvas></div></div>
-      <div><h3>Reach from the stand, side view</h3><div class="stage"><canvas id="dgB"></canvas></div></div>
+      <div><h3>The gallery, side view, to scale</h3><div class="stage"><canvas id="dgB"></canvas></div></div>
     </div>
   </section>
 
