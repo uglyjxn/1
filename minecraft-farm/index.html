@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Mob Spawner Farm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: masthead and key numbers, a four-step flow, then explorable views (3D, layers, section), clearance checks, build guide */
+:root {
+  --bg: #eceee9; --panel: #ffffff; --fg: #182019; --muted: #5a665e; --line: #cfd5cd;
+  --accent: #2f5bd3; --accent-fg: #ffffff; --chip: #e2e6df; --stage: #12171b; --stage-line: #2b343a;
+  --ok: #1f7a43; --bad: #b3261e; --warn: #9a6200;
+  --font-display: "Pixelify Sans", "Courier New", monospace;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0f1316; --panel: #171c20; --fg: #e5ebe6; --muted: #98a59d; --line: #2a3237; --accent: #8aa9ff; --accent-fg: #0b1020; --chip: #232b30; --ok: #66d28f; --bad: #ff8a80; --warn: #f0b95a; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0f1316; --panel: #171c20; --fg: #e5ebe6; --muted: #98a59d; --line: #2a3237; --accent: #8aa9ff; --accent-fg: #0b1020; --chip: #232b30; --ok: #66d28f; --bad: #ff8a80; --warn: #f0b95a; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--font-body); margin: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 72px; }
+h1, h2, h3 { margin: 0; font-weight: 600; text-wrap: balance; }
+h1 { font: 700 clamp(34px, 6vw, 56px)/1 var(--font-display); }
+h2 { font: 700 clamp(22px, 3.4vw, 30px)/1.1 var(--font-display); }
+h3 { font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; font-weight: 600; }
+p { margin: 0; }
+section { margin-top: 52px; }
+.sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; margin-bottom: 14px; }
+.sec-h p { color: var(--muted); max-width: 70ch; flex-basis: 100%; }
+.lede { max-width: 66ch; color: var(--muted); margin-top: 12px; font-size: 16px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 22px; }
+.fact { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; min-width: 0; }
+.fact b { display: block; font: 600 20px/1.2 var(--font-mono); font-variant-numeric: tabular-nums; }
+.fact span { color: var(--muted); font-size: 12.5px; }
+.flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.flow li { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px; counter-increment: s; }
+.flow li::before { content: counter(s); font: 700 22px/1 var(--font-display); color: var(--accent); display: block; margin-bottom: 6px; }
+.flow b { display: block; margin-bottom: 2px; }
+.flow span { color: var(--muted); font-size: 13.5px; }
+.stage { background: var(--stage); border: 1px solid var(--stage-line); border-radius: 6px; overflow: hidden; }
+.stage canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 10px; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+.seg button, .tog { all: unset; box-sizing: border-box; padding: 5px 11px; font-size: 13px; cursor: pointer; color: var(--fg); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"], .tog[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.tog { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.seg button:focus-visible, .tog:focus-visible, input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.slider { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+.slider input { width: min(260px, 50vw); accent-color: var(--accent); }
+.slider b { font-family: var(--font-mono); color: var(--fg); min-width: 2.2em; }
+.two { display: grid; grid-template-columns: minmax(0, 592px) minmax(0, 1fr); gap: 26px; align-items: start; }
+.col { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px; min-width: 0; }
+.card h3 { margin-bottom: 6px; }
+.small { font-size: 12.5px; color: var(--muted); }
+.mono { font-family: var(--font-mono); font-size: 12.5px; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.tw { overflow-x: auto; }
+.ok { color: var(--ok); font-weight: 600; } .bad { color: var(--bad); font-weight: 600; } .warn { color: var(--warn); font-weight: 600; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.steps li::marker { color: var(--accent); font-weight: 700; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend canvas { width: 16px; height: 16px; image-rendering: pixelated; border-radius: 2px; }
+.mats { display: grid; gap: 4px; }
+.mat { display: grid; grid-template-columns: 18px minmax(120px, 190px) minmax(0, 1fr) 118px; gap: 10px; align-items: center; font-size: 13px; }
+.mat canvas { width: 18px; height: 18px; image-rendering: pixelated; border-radius: 2px; }
+.mat .bar { height: 8px; background: var(--chip); border-radius: 2px; overflow: hidden; }
+.mat .bar i { display: block; height: 100%; background: var(--accent); }
+.mat .n { font: 400 12px var(--font-mono); text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.callout { border-left: 3px solid var(--warn); background: var(--panel); border-radius: 0 6px 6px 0; padding: 12px 14px; }
+.callout b { color: var(--warn); }
+ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+@media (max-width: 960px) { .two { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .mat { grid-template-columns: 18px minmax(0, 1fr) 90px; } .mat .bar { grid-column: 2 / 4; grid-row: 2; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Mob Spawner Farm</h1>
+    <p class="lede">Four spawner chambers around one kill room. Water carries every mob to a pit under your feet, you kill them by hand through a hatch, and hoppers move the drops into a chest. Built for Minecraft Java 26.2 and sized for mobs from a zombie (1.95 tall) down to a cave spider (0.5 tall).</p>
+    <div class="facts" id="facts"></div>
+  </header>
+
+  <section id="how">
+    <div class="sec-h"><h2>How it works</h2></div>
+    <ol class="flow" id="flow"></ol>
+  </section>
+
+  <section id="v3d">
+    <div class="sec-h"><h2>3D view</h2><p>Use the height slider or a preset to peel the roofs off and look inside. The two cut buttons slice the farm in half.</p></div>
+    <div class="toolbar" id="tb3d"></div>
+    <div class="stage"><canvas id="iso" aria-label="Isometric view of the farm"></canvas></div>
+    <div class="legend" id="legend3d"></div>
+  </section>
+
+  <section id="layers">
+    <div class="sec-h"><h2>Layer by layer</h2><p>Top-down plan of one height level at a time, the way you would build it. The darker, faded blocks show what sits one level below.</p></div>
+    <div class="toolbar"><div class="slider"><label for="ly">Layer</label><input id="ly" type="range" min="0" max="10" step="1" value="5"><b id="lyv">5</b></div><button class="tog" id="lyg" aria-pressed="false" type="button">4-block grid</button></div>
+    <div class="two">
+      <div><div class="stage"><canvas id="plan"></canvas></div><div class="mono" id="ro" style="margin-top:8px;color:var(--muted);min-height:1.5em">Hover the plan for coordinates and the block.</div></div>
+      <div class="col" id="laytext"></div>
+    </div>
+  </section>
+
+  <section id="sect">
+    <div class="sec-h"><h2>Cross-section</h2><p>A vertical slice. The first position, 18, cuts straight through a spawner, the drop shaft, the channel, the kill pit and the hatch.</p></div>
+    <div class="toolbar"><div class="seg" id="axseg"><button type="button" data-ax="x" aria-pressed="true">North to south</button><button type="button" data-ax="z" aria-pressed="false">West to east</button></div><div class="slider"><label for="sl">Slice at</label><input id="sl" type="range" min="0" max="36" step="1" value="18"><b id="slv">18</b></div></div>
+    <div class="stage"><canvas id="sec"></canvas></div>
+  </section>
+
+  <section id="fit">
+    <div class="sec-h"><h2>Does every mob size fit?</h2><p>Mob hitboxes in Java: zombie 0.6 wide and 1.95 tall, spider 1.4 wide and 0.9 tall, cave spider 0.7 wide and 0.5 tall. Every passage the mobs use is checked against all three.</p></div>
+    <div class="tw"><table id="fitt"></table></div>
+    <div class="two" style="margin-top:18px">
+      <div><h3>Channel cross-section, to scale</h3><div class="stage"><canvas id="dgA"></canvas></div></div>
+      <div><h3>Reach from the stand, side view</h3><div class="stage"><canvas id="dgB"></canvas></div></div>
+    </div>
+  </section>
+
+  <section id="build">
+    <div class="sec-h"><h2>Build order</h2></div>
+    <div class="two">
+      <ol class="steps" id="steps"></ol>
+      <div class="col"><div class="card"><h3>Material list</h3><div class="mats" id="mats"></div><p class="small" style="margin-top:8px" id="matn"></p></div></div>
+    </div>
+  </section>
+
+  <section id="use">
+    <div class="sec-h"><h2>Using it</h2></div>
+    <div class="two">
+      <div class="col" id="usel"></div>
+      <div class="col" id="user"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+'use strict';
+/* ============================================================
+   Spawner farm: blocks, textures, voxel model, renderers.
+   x west->east, z north->south, y up. One voxel = one block.
+   ============================================================ */
+const FW = 37, FD = 37, FH = 11;
+
+const BL = {};
+function d(key, name, col, pat, o) { BL[key] = Object.assign({ key, name, col, pat: pat || 'n' }, o || {}); }
+d('stone_bricks', 'Stone Bricks', '#7a7a7a', 'b');
+d('smooth_stone', 'Smooth Stone', '#a0a0a0', 'n');
+d('polished_andesite', 'Polished Andesite', '#868786', 'n');
+d('cobblestone', 'Cobblestone', '#7b7b7b', 'r');
+d('glass', 'Glass', '#b6dcea', 'g');
+d('water', 'Water', '#3d73e0', 'w', { alpha: 0.78 });
+d('hopper', 'Hopper', '#43434a', 'hp');
+d('chest', 'Chest', '#a06a2c', 'ch');
+d('spawner', 'Mob Spawner', '#16232c', 'sp', { glow: true, gcol: '#6fd0ff' });
+d('redstone_lamp', 'Redstone Lamp', '#f5c46f', 'e', { glow: true, gcol: '#ffcf80' });
+d('oak_door', 'Oak Door', '#8b6b3a', 'p');
+d('player', 'You', '#2aa3b0', 'n', { virtual: true });
+
+const texCache = {};
+function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hex(c) { const n = parseInt(c.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function rgbk(rgb, k) { return 'rgb(' + [0, 1, 2].map(i => Math.max(0, Math.min(255, rgb[i] * k)) | 0).join(',') + ')'; }
+function tex(key, v) {
+  v = (v | 0) & 3; const id = key + '#' + v; if (texCache[id]) return texCache[id];
+  const b = BL[key], cv = document.createElement('canvas'); cv.width = cv.height = 16;
+  const g = cv.getContext('2d'), R = rng(hash(key) + v * 7919), base = hex(b.col);
+  const amp = { n: .07, r: .17, p: .09, b: .08, e: .07, w: .05, hp: .05, ch: .07, sp: .05 }[b.pat] || .08;
+  if (b.pat === 'g') {
+    g.fillStyle = 'rgba(' + base.join(',') + ',0.30)'; g.fillRect(0, 0, 16, 16);
+    g.fillStyle = 'rgba(' + base.map(c => Math.min(255, c + 40)).join(',') + ',0.95)';
+    g.fillRect(0, 0, 16, 1); g.fillRect(0, 15, 16, 1); g.fillRect(0, 0, 1, 16); g.fillRect(15, 0, 1, 16);
+    for (let i = 3; i < 11; i++) if ((i + v) % 5 < 3) g.fillRect(i, 13 - i, 1, 1);
+    return texCache[id] = cv;
+  }
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+    let k = 1 + (R() - .5) * 2 * amp, col = base;
+    switch (b.pat) {
+      case 'b': { const row = y >> 2; if ((y & 3) === 3 || ((x + (row & 1 ? 4 : 0)) & 7) === 7) k *= .72; break; }
+      case 'p': if ((y & 3) === 3) k *= .8; break;
+      case 'e': { if (x >= 3 && x <= 12 && y >= 3 && y <= 12) k *= 1.12; if (x === 0 || y === 0 || x === 15 || y === 15) k *= .8; break; }
+      case 'w': if (((x + (y >> 2) * 5) & 7) < 3) k *= 1.12; else k *= .96; break;
+      case 'hp': { const edge = x < 2 || y < 2 || x > 13 || y > 13, bowl = x >= 4 && x <= 11 && y >= 4 && y <= 11, hole = x >= 6 && x <= 9 && y >= 6 && y <= 9; k *= hole ? .35 : bowl ? .7 : edge ? 1.25 : 1; break; }
+      case 'ch': { if (x < 1 || y < 1 || x > 14 || y > 14) k *= .7; if (x >= 7 && x <= 8 && y >= 6 && y <= 9) { col = [220, 220, 215]; k = 1; } break; }
+      case 'sp': { const cage = (x % 5 === 0 || y % 5 === 0); if (cage) { col = hex('#4a86a8'); k = .9 + R() * .25; } else if ((x * 7 + y * 3) % 11 === 0) { col = hex('#2f8fd0'); k = 1; } break; }
+    }
+    g.fillStyle = rgbk(col, k); g.fillRect(x, y, 1, 1);
+  }
+  return texCache[id] = cv;
+}
+
+/* ---------- voxel model ---------- */
+class Model {
+  constructor() {
+    this.v = []; for (let y = 0; y < FH; y++) { const pl = []; for (let z = 0; z < FD; z++) pl.push(new Array(FW).fill(null)); this.v.push(pl); }
+    this.notes = []; this.arrows = [];
+  }
+  inb(x, y, z) { return x >= 0 && x < FW && y >= 0 && y < FH && z >= 0 && z < FD; }
+  get(x, y, z) { return this.inb(x, y, z) ? this.v[y][z][x] : null; }
+  set(x, y, z, m, o) { if (this.inb(x, y, z)) this.v[y][z][x] = Object.assign({ m }, o || {}); }
+  fill(x0, y0, z0, x1, y1, z1, m, o) { for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) for (let x = x0; x <= x1; x++) this.set(x, y, z, m, o); }
+  clear(x0, y0, z0, x1, y1, z1) { for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) for (let x = x0; x <= x1; x++) if (this.inb(x, y, z)) this.v[y][z][x] = null; }
+  note(y, x, z, t, o) { this.notes.push(Object.assign({ y, x, z, t }, o || {})); }
+  arrow(y, x, z, dx, dz) { this.arrows.push({ y, x, z, dx, dz }); }
+  counts() {
+    const m = {};
+    for (let y = 0; y < FH; y++) for (let z = 0; z < FD; z++) for (let x = 0; x < FW; x++) {
+      const b = this.v[y][z][x]; if (!b || BL[b.m].virtual) continue;
+      if (b.m === 'water' && !b.src) continue;
+      m[b.m] = (m[b.m] || 0) + 1;
+    }
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }
+}
+
+/* ---------- isometric renderer ---------- */
+function drawIso(cv, M, o) {
+  o = o || {};
+  const maxY = o.maxY === undefined ? FH : o.maxY, cutX = o.cutX === undefined ? FW : o.cutX, cutZ = o.cutZ === undefined ? FD : o.cutZ;
+  const tw = 32, th = 16, hh = 16, mg = 16;
+  cv.width = (FW + FD) * tw / 2 + 2 * mg; cv.height = (FW + FD) * th / 2 + FH * hh + 2 * mg + 8;
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  const grd = g.createLinearGradient(0, 0, 0, cv.height); grd.addColorStop(0, '#1c2730'); grd.addColorStop(1, '#101519');
+  g.fillStyle = grd; g.fillRect(0, 0, cv.width, cv.height);
+  const ox = FD * tw / 2 + mg, oy = mg + FH * hh;
+  const P = (x, z, y) => [ox + (x - z) * tw / 2, oy + (x + z) * th / 2 - y * hh];
+  const vis = (x, y, z) => { const b = M.get(x, y, z); return b && y < maxY && x <= cutX && z <= cutZ ? b : null; };
+  const opq = (x, y, z) => { const b = vis(x, y, z); return !!b && !BL[b.m].alpha && (b.h === undefined || b.h >= 1); };
+  const poly = (pts, fill) => { g.fillStyle = fill; g.beginPath(); g.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]); g.closePath(); g.fill(); };
+  const top = (x, z, y, key, v, a) => { const p = P(x, z, y); g.save(); g.globalAlpha = a; g.setTransform(tw / 2 / 16, th / 2 / 16, -tw / 2 / 16, th / 2 / 16, p[0], p[1]); g.drawImage(tex(key, v), 0, 0, 16.7, 16.7); g.restore(); };
+  const south = (x, z, yA, yB, key, v, a) => { const p = P(x, z + 1, yB); g.save(); g.globalAlpha = a; g.setTransform(tw / 2 / 16, th / 2 / 16, 0, hh * (yB - yA) / 16, p[0], p[1]); g.drawImage(tex(key, v), 0, 0, 16.7, 16.7); g.restore(); poly([P(x, z + 1, yB), P(x + 1, z + 1, yB), P(x + 1, z + 1, yA), P(x, z + 1, yA)], 'rgba(0,0,0,' + .2 * a + ')'); };
+  const east = (x, z, yA, yB, key, v, a) => { const p = P(x + 1, z, yB); g.save(); g.globalAlpha = a; g.setTransform(-tw / 2 / 16, th / 2 / 16, 0, hh * (yB - yA) / 16, p[0], p[1]); g.drawImage(tex(key, v), 0, 0, 16.7, 16.7); g.restore(); poly([P(x + 1, z, yB), P(x + 1, z + 1, yB), P(x + 1, z + 1, yA), P(x + 1, z, yA)], 'rgba(0,0,0,' + .38 * a + ')'); };
+  const glows = [], marks = [];
+  for (let s = 0; s <= FW + FD - 2; s++) for (let x = Math.max(0, s - FD + 1); x <= Math.min(FW - 1, s); x++) {
+    const z = s - x; if (x > cutX || z > cutZ) continue;
+    for (let y = 0; y < Math.min(FH, maxY); y++) {
+      const b = M.v[y][z][x]; if (!b) continue;
+      const bl = BL[b.m], h = b.h === undefined ? 1 : b.h, a = bl.alpha || 1, v = (x * 7 + z * 13 + y * 5) & 3, yt = y + h;
+      const same = (xx, yy, zz) => { const n = vis(xx, yy, zz); return n && n.m === b.m; };
+      if (!(opq(x, y + 1, z) && h >= 1) && !(bl.alpha && same(x, y + 1, z) && h >= 1)) top(x, z, yt, b.m, v, a);
+      if (!opq(x, y, z + 1) && !(bl.alpha && same(x, y, z + 1))) south(x, z, y, yt, b.m, v, a);
+      if (!opq(x + 1, y, z) && !(bl.alpha && same(x + 1, y, z))) east(x, z, y, yt, b.m, v, a);
+      if (bl.glow && b.m === 'spawner') glows.push([x, z, y + .5, bl.gcol]);
+      if (b.m === 'spawner' || b.m === 'player') marks.push([x, z, y + h, b.m]);
+    }
+  }
+  g.globalCompositeOperation = 'lighter';
+  for (const [x, z, y, col] of glows) { const p = P(x + .5, z + .5, y), r = 34, rg = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], r), cc = hex(col); rg.addColorStop(0, 'rgba(' + cc.join(',') + ',.45)'); rg.addColorStop(1, 'rgba(' + cc.join(',') + ',0)'); g.fillStyle = rg; g.fillRect(p[0] - r, p[1] - r, r * 2, r * 2); }
+  g.globalCompositeOperation = 'source-over';
+  g.font = '700 11px "JetBrains Mono", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  let n = 0;
+  for (const [x, z, y, m] of marks) {
+    const p = P(x + .5, z + .5, y + .2); const t = m === 'spawner' ? 'S' + (++n) : 'YOU';
+    if (m === 'player' && Math.round(y) !== 8) continue;
+    g.lineWidth = 3.5; g.strokeStyle = 'rgba(8,12,16,.95)'; g.strokeText(t, p[0], p[1] - 14); g.fillStyle = m === 'spawner' ? '#8fe0ff' : '#ffe08a'; g.fillText(t, p[0], p[1] - 14);
+  }
+}
+
+/* ---------- layer plan renderer ---------- */
+function drawLayer(cv, M, y, o) {
+  o = o || {}; const c = 16, mg = 26;
+  cv.width = FW * c + mg + 8; cv.height = FD * c + mg + 8;
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  g.fillStyle = '#12171b'; g.fillRect(0, 0, cv.width, cv.height);
+  g.fillStyle = '#8f9ca3'; g.font = '10px "JetBrains Mono", monospace'; g.textBaseline = 'middle'; g.textAlign = 'center';
+  for (let x = 0; x < FW; x += 4) g.fillText(x, mg + x * c + c / 2, 12);
+  g.textAlign = 'right'; for (let z = 0; z < FD; z += 4) g.fillText(z, mg - 5, mg + z * c + c / 2);
+  for (let z = 0; z < FD; z++) for (let x = 0; x < FW; x++) {
+    const px = mg + x * c, py = mg + z * c, b = M.v[y][z][x], v = (x * 7 + z * 13 + y * 5) & 3;
+    if (b) {
+      const bl = BL[b.m];
+      if (bl.alpha) { const u = y > 0 ? M.v[y - 1][z][x] : null; if (u && !BL[u.m].alpha) { g.globalAlpha = .45; g.drawImage(tex(u.m, v), px, py); g.globalAlpha = 1; } else { g.fillStyle = '#1d2a33'; g.fillRect(px, py, c, c); } g.globalAlpha = (b.h !== undefined && b.h < .6) ? .6 : .85; g.drawImage(tex(b.m, v), px, py); g.globalAlpha = 1; if (b.src) { g.fillStyle = '#fff'; g.fillRect(px + 6, py + 6, 4, 4); } }
+      else { g.drawImage(tex(b.m, v), px, py); }
+      if (b.m === 'spawner') { g.strokeStyle = '#8fe0ff'; g.lineWidth = 2; g.strokeRect(px + 1, py + 1, c - 2, c - 2); }
+    } else {
+      const u = y > 0 ? M.v[y - 1][z][x] : null;
+      if (u) { g.globalAlpha = .28; g.drawImage(tex(u.m, v), px, py); g.globalAlpha = 1; }
+    }
+  }
+  g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = 1; g.strokeRect(mg - .5, mg - .5, FW * c + 1, FD * c + 1);
+  if (o.grid) { g.strokeStyle = 'rgba(255,255,255,.18)'; g.beginPath(); for (let x = 0; x <= FW; x += 4) { g.moveTo(mg + x * c + .5, mg); g.lineTo(mg + x * c + .5, mg + FD * c); } for (let z = 0; z <= FD; z += 4) { g.moveTo(mg, mg + z * c + .5); g.lineTo(mg + FW * c, mg + z * c + .5); } g.stroke(); }
+  for (const a of M.arrows) if (a.y === y) {
+    const cx = mg + (a.x + .5) * c, cy = mg + (a.z + .5) * c, L = 6, ang = Math.atan2(a.dz, a.dx);
+    g.save(); g.translate(cx, cy); g.rotate(ang); g.strokeStyle = '#fff'; g.fillStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.moveTo(-L, 0); g.lineTo(L - 2, 0); g.stroke(); g.beginPath(); g.moveTo(L + 2, 0); g.lineTo(L - 4, -4); g.lineTo(L - 4, 4); g.closePath(); g.fill(); g.restore();
+  }
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  for (const n of M.notes) if (n.y === y) {
+    const s = n.s || 11, lines = n.t.split('\n'); g.font = '600 ' + s + 'px "IBM Plex Sans", system-ui, sans-serif';
+    lines.forEach((t, i) => { const px = mg + (n.x + .5) * c, py = mg + (n.z + .5) * c + (i - (lines.length - 1) / 2) * (s + 1); g.lineWidth = 3.5; g.lineJoin = 'round'; g.strokeStyle = 'rgba(8,12,16,.95)'; g.strokeText(t, px, py); g.fillStyle = '#fff'; g.fillText(t, px, py); });
+  }
+  g.fillStyle = '#c8d2d6'; g.font = '700 10px "JetBrains Mono", monospace'; g.textAlign = 'left'; g.fillText('N↑', 2, 12);
+  return { c, mg };
+}
+
+/* ---------- cross-section renderer ---------- */
+function drawSection(cv, M, axis, k) {
+  const c = 16, mg = 26, W = (axis === 'x' ? FD : FW);
+  cv.width = W * c + mg + 8; cv.height = FH * c + mg + 8;
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  g.fillStyle = '#12171b'; g.fillRect(0, 0, cv.width, cv.height);
+  g.fillStyle = '#8f9ca3'; g.font = '10px "JetBrains Mono", monospace'; g.textBaseline = 'middle'; g.textAlign = 'center';
+  for (let i = 0; i < W; i += 4) g.fillText(i, mg + i * c + c / 2, 12);
+  g.textAlign = 'right'; for (let y = 0; y < FH; y++) g.fillText(y, mg - 5, mg + (FH - 1 - y) * c + c / 2);
+  for (let y = 0; y < FH; y++) for (let i = 0; i < W; i++) {
+    const b = axis === 'x' ? M.v[y][i][k] : M.v[y][k][i], px = mg + i * c, py = mg + (FH - 1 - y) * c, v = (i * 7 + y * 5) & 3;
+    g.fillStyle = (y >= 5 ? '#17222a' : '#141a1f'); g.fillRect(px, py, c, c);
+    if (!b) continue; const bl = BL[b.m];
+    g.globalAlpha = bl.alpha ? (b.h !== undefined && b.h < .6 ? .55 : .8) : 1;
+    const h = b.h === undefined ? 1 : b.h;
+    if (h < 1) { g.save(); g.beginPath(); g.rect(px, py + c * (1 - h), c, c * h); g.clip(); g.drawImage(tex(b.m, v), px, py); g.restore(); } else g.drawImage(tex(b.m, v), px, py);
+    g.globalAlpha = 1;
+    if (b.m === 'spawner') { g.strokeStyle = '#8fe0ff'; g.lineWidth = 2; g.strokeRect(px + 1, py + 1, c - 2, c - 2); }
+  }
+  g.strokeStyle = 'rgba(255,255,255,.28)'; g.strokeRect(mg - .5, mg - .5, W * c + 1, FH * c + 1);
+  return { c, mg };
+}
+
+'use strict';
+/* ============================================================
+   The farm. Centre of the kill room is (18, 18). Four spawn chambers (N, E, S, W)
+   sit 13 blocks from the centre, each joined to it by a water channel.
+
+   y 0-1  basement + loot chests          y 5    walkway plate / chamber floors
+   y 2    pit floor, channel floors       y 6-9  chambers, kill booth, corridors
+   y 3-4  water + headroom (mob level)    y 10   chamber roofs
+   ============================================================ */
+const C = 18;
+const SPAWNERS = [[18, 7, 5], [31, 7, 18], [18, 7, 31], [5, 7, 18]];   // x, y, z
+
+function buildFarm() {
+  const M = new Model();
+  const SB = 'stone_bricks', SS = 'smooth_stone', PA = 'polished_andesite';
+  const ring = (x0, z0, x1, z1, y0, y1, m) => { for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) for (let x = x0; x <= x1; x++) if (x === x0 || x === x1 || z === z0 || z === z1) M.set(x, y, z, m); };
+
+  /* ---------- kill room (centre) ---------- */
+  M.fill(14, 0, 14, 22, 1, 22, SB);                 // basement block
+  M.fill(14, 2, 14, 22, 2, 22, PA);                 // pit floor
+  ring(14, 14, 22, 22, 3, 4, SB);                   // pit walls (2 high)
+  M.fill(14, 5, 14, 22, 5, 22, SS);                 // walkway plate = booth floor
+  ring(14, 14, 22, 22, 6, 8, SB);                   // booth walls
+  M.fill(14, 9, 14, 22, 9, 22, SB);                 // booth roof
+  for (const [x, z] of [[16, 16], [20, 16], [16, 20], [20, 20]]) M.set(x, 9, z, 'redstone_lamp');
+  // pit water: fed from the four channels, flows towards the middle
+  M.fill(15, 3, 15, 21, 3, 21, 'water', { h: .5 });
+  // hopper floor 3 x 3 + chest
+  M.fill(17, 2, 17, 19, 2, 19, 'hopper');
+  M.set(18, 1, 19, 'chest'); M.set(19, 1, 19, 'chest');
+  // hatch: pedestal in the middle, bridge to the south, the other 7 cells stay open
+  M.clear(17, 5, 17, 19, 5, 19);
+  M.set(18, 5, 18, SS); M.set(18, 5, 19, SS);
+  M.set(18, 6, 18, 'player', { h: 1 }); M.set(18, 7, 18, 'player', { h: 1 });
+  // pit and booth openings for the four channels
+  M.clear(17, 3, 14, 19, 4, 14); M.clear(17, 3, 22, 19, 4, 22); M.clear(14, 3, 17, 14, 4, 19); M.clear(22, 3, 17, 22, 4, 19);
+  M.clear(17, 6, 14, 19, 8, 14); M.clear(17, 6, 22, 19, 8, 22); M.clear(14, 6, 17, 14, 8, 19); M.clear(22, 6, 17, 22, 8, 19);
+  // booth windows (glass, 2 high) and the entrance door on the east wall
+  for (const o of [-3, -2, 2, 3]) {
+    M.fill(C + o, 7, 14, C + o, 8, 14, 'glass'); M.fill(C + o, 7, 22, C + o, 8, 22, 'glass');
+    M.fill(14, 7, C + o, 14, 8, C + o, 'glass'); M.fill(22, 7, C + o, 22, 8, C + o, 'glass');
+  }
+  M.clear(22, 6, 21, 22, 8, 21); M.set(22, 6, 21, 'oak_door'); M.set(22, 7, 21, 'oak_door'); M.set(22, 8, 21, SB);
+
+  /* ---------- spawn chambers ---------- */
+  const DIRS = {
+    N: (u, v) => [18 + u, 5 + v], S: (u, v) => [18 - u, 31 - v],
+    W: (u, v) => [5 + v, 18 - u], E: (u, v) => [31 - v, 18 + u]
+  };
+  const dxz = { N: [0, 1], S: [0, -1], W: [1, 0], E: [-1, 0] };   // direction towards the pit
+  for (const name of ['N', 'E', 'S', 'W']) {
+    const f = DIRS[name], P = (u, v, y, m, o) => { const [x, z] = f(u, v); M.set(x, y, z, m, o); };
+    const C0 = (u, v, y0, y1, m, o) => { for (let y = y0; y <= y1; y++) P(u, v, y, m, o); };
+    for (let u = -5; u <= 5; u++) for (let v = -5; v <= 5; v++) {
+      const edge = Math.abs(u) === 5 || Math.abs(v) === 5, hole = Math.abs(u) <= 1 && Math.abs(v) <= 1;
+      if (!hole) P(u, v, 5, SB);                                   // floor plate
+      P(u, v, 10, SB);                                             // roof
+      if (edge) C0(u, v, 6, 9, SB);                                // outer wall
+      else if (Math.abs(u) + Math.abs(v) > 6) C0(u, v, 6, 9, SB);  // corner fill: makes the room an octagon
+      else {
+        const src = (Math.abs(u) === 4 && v === 0) || (u === 0 && Math.abs(v) === 4);
+        if (!hole || true) P(u, v, 6, 'water', { h: .6, src });    // floor water (4 source blocks, rest flows)
+      }
+    }
+    // 3 x 3 drop shaft: falling water through the floor plate down to the channel
+    for (let u = -1; u <= 1; u++) for (let v = -1; v <= 1; v++) { P(u, v, 5, 'water', { h: 1 }); P(u, v, 4, 'water', { h: 1 }); }
+    // spawner hangs on a two-block stalactite
+    P(0, 0, 9, SB); P(0, 0, 8, SB); P(0, 0, 7, 'spawner');
+    // access plug (two cobblestone, remove to enter) and the step in front of it
+    P(0, 5, 7, 'cobblestone'); P(0, 5, 8, 'cobblestone'); P(0, 6, 6, SS);
+    // channel: floor y2 (5 wide), walls y3-4, water y3 (3 wide), sources at both ends
+    for (let v = -1; v <= 9; v++) {
+      for (let u = -2; u <= 2; u++) P(u, v, 2, PA);
+      if (v <= 8) { P(-2, v, 3, SB); P(2, v, 3, SB); P(-2, v, 4, SB); P(2, v, 4, SB); }
+      for (let u = -1; u <= 1; u++) P(u, v, 3, 'water', { h: .8, src: v === -1 || v === 6 });
+      if (v === -1) for (let u = -2; u <= 2; u++) { P(u, v, 3, u === -2 || u === 2 ? SB : 'water', u === -2 || u === 2 ? undefined : { h: .8, src: true }); }
+    }
+    // cap the channel start
+    for (let u = -2; u <= 2; u++) { P(u, -2, 2, PA); P(u, -2, 3, SB); P(u, -2, 4, SB); }
+    // corridor above the arm: plate, walls, roof
+    for (let v = 6; v <= 8; v++) {
+      for (let u = -2; u <= 2; u++) { P(u, v, 5, SS); P(u, v, 9, SB); }
+      for (const u of [-2, 2]) C0(u, v, 6, 8, SB);
+    }
+    // flow arrows (plan view)
+    const [dx, dz] = dxz[name];
+    for (let v = -1; v <= 12; v += 2) { const [x, z] = f(0, v); M.arrow(3, x, z, dx, dz); }
+    for (const [u, v] of [[-3, 0], [3, 0], [0, -3], [-2, -2], [2, -2], [-3, 2], [3, 2], [-2, 3], [2, 3]]) {
+      const [x, z] = f(u, v), [x2, z2] = f(0, 0); M.arrow(6, x, z, Math.sign(x2 - x), Math.sign(z2 - z));
+    }
+    const [lx, lz] = f(0, 0);
+    M.note(7, lx, lz, 'Spawner', { s: 10 });
+    const [px, pz] = f(0, 5); M.note(7, px, pz, 'Plug', { s: 9 });
+    const [sx, sz] = f(0, 6); M.note(6, sx, sz, 'Step', { s: 9 });
+    const [hx, hz] = f(0, -4); M.note(6, hx, hz, 'Source', { s: 9 });
+  }
+  // pit flow arrows: every channel pushes towards the middle
+  for (const [x, z, dx, dz] of [[18, 16, 0, 1], [18, 20, 0, -1], [16, 18, 1, 0], [20, 18, -1, 0], [17, 15, 0, 1], [19, 15, 0, 1], [17, 21, 0, -1], [19, 21, 0, -1], [15, 17, 1, 0], [15, 19, 1, 0], [21, 17, -1, 0], [21, 19, -1, 0]]) M.arrow(3, x, z, dx, dz);
+
+  /* ---------- labels ---------- */
+  M.note(1, 18.5, 19, 'Large chest', { s: 10 });
+  M.note(2, 18, 18, 'Hoppers\n3 x 3', { s: 10 });
+  M.note(3, 18, 18, 'Pit water', { s: 10 });
+  M.note(5, 18, 17, 'Hatch', { s: 10 }); M.note(5, 18, 18, 'Stand', { s: 9 }); M.note(5, 18, 19, 'Bridge', { s: 9 });
+  M.note(6, 18, 16, 'Booth', { s: 11 }); M.note(7, 18, 20, 'Booth', { s: 11 }); M.note(6, 22, 21, 'Door', { s: 9 });
+  M.note(9, 18, 18, 'Roof + lamps', { s: 10 });
+  return M;
+}
+
+'use strict';
+const M = buildFarm();
+const $ = (s, r) => (r || document).querySelector(s);
+const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h !== undefined) e.innerHTML = h; return e; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const stacks = n => { const s = Math.floor(n / 64), r = n % 64; return n.toLocaleString('en-US') + (s ? '  ·  ' + s + '×64' + (r ? '+' + r : '') : ''); };
+function swatch(key, px) { const c = document.createElement('canvas'); c.width = c.height = 16; if (px) c.style.width = c.style.height = px + 'px'; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(tex(key, 0), 0, 0); return c; }
+
+/* ---------- constants used in the text and the checks ---------- */
+const MOBS = [
+  { n: 'Zombie', w: .6, h: 1.95 }, { n: 'Spider', w: 1.4, h: .9 }, { n: 'Cave spider', w: .7, h: .5 }
+];
+const EYE = 7.62, HEAD = 4.95, REACH = 3.0, HREACH = Math.sqrt(REACH * REACH - (EYE - HEAD) ** 2);
+
+/* ---------- header and how-it-works ---------- */
+$('#facts').innerHTML = [
+  ['4', 'Spawner slots, one per chamber'], ['13 blocks', 'From each spawner to your stand (limit 16)'], ['0.5 – 1.95', 'Mob heights that fit, cave spider to zombie'],
+  ['37 × 37 × 11', 'Footprint and height in blocks'], ['By hand', 'You kill. Nothing damages the mobs.'], ['Automatic', 'Hoppers sort drops into a chest']
+].map(a => '<div class="fact"><b>' + a[0] + '</b><span>' + a[1] + '</span></div>').join('');
+$('#flow').innerHTML = [
+  ['Spawn', 'Each spawner hangs in the middle of a dark 9 × 9 octagonal room with a water floor. Mobs spawn in the water or in the air above it.'],
+  ['Wash', 'Floor water runs into a 3 × 3 drop shaft. Mobs fall one block into a 3-wide channel and are carried 13 blocks to the middle.'],
+  ['Gather', 'All four channels end in one pit. Their water meets in the centre and pushes mobs together under your stand.'],
+  ['Kill and collect', 'You stand on a one-block pedestal over the pit and hit down through the open hatch. Drops land on a 3 × 3 hopper floor and end up in a chest.']
+].map(a => '<li><b>' + a[0] + '</b><span>' + a[1] + '</span></li>').join('');
+
+/* ---------- 3D view ---------- */
+const v3 = { maxY: 9, cutX: false, cutZ: false };
+const tb3 = $('#tb3d'), iso = $('#iso');
+const render3 = () => drawIso(iso, M, { maxY: v3.maxY, cutX: v3.cutX ? 18 : undefined, cutZ: v3.cutZ ? 18 : undefined });
+const presets = [['All roofs', 11], ['Roofs off', 9], ['Walkway level', 6], ['Underground', 5], ['Mob level', 4]];
+const seg = el('div', 'seg'); presets.forEach(([t, y]) => { const b = el('button', '', t); b.type = 'button'; b.dataset.y = y; b.setAttribute('aria-pressed', String(v3.maxY === y)); b.onclick = () => { v3.maxY = y; sync(); render3(); }; seg.appendChild(b); });
+const sl = el('div', 'slider', '<label for="cy">Show up to layer</label><input id="cy" type="range" min="1" max="11" step="1" value="' + v3.maxY + '"><b id="cyv">' + (v3.maxY - 1) + '</b>');
+const mkTog = (t, k) => { const b = el('button', 'tog', t); b.type = 'button'; b.setAttribute('aria-pressed', 'false'); b.onclick = () => { v3[k] = !v3[k]; b.setAttribute('aria-pressed', String(v3[k])); render3(); }; return b; };
+tb3.append(seg, sl, mkTog('Cut away east half', 'cutX'), mkTog('Cut away south half', 'cutZ'));
+function sync() { $('#cy').value = v3.maxY; $('#cyv').textContent = v3.maxY - 1; seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.y === v3.maxY))); }
+$('#cy').oninput = e => { v3.maxY = +e.target.value; sync(); render3(); };
+render3();
+$('#legend3d').innerHTML = '<span>Labels: S1 to S4 are the spawner slots, YOU is the stand.</span>';
+['stone_bricks', 'smooth_stone', 'polished_andesite', 'glass', 'water', 'hopper', 'chest', 'spawner', 'cobblestone', 'redstone_lamp'].forEach(k => { const s = el('span'); s.appendChild(swatch(k)); s.appendChild(document.createTextNode(BL[k].name)); $('#legend3d').appendChild(s); });
+
+/* ---------- layers ---------- */
+const LAYERS = [
+  ['Basement floor', 'A solid block of stone bricks, 9 × 9, under the kill room. Nothing else is on this layer.'],
+  ['Loot chests', 'A large chest at x 18–19, z 19. The hopper above drops into its left half; both halves share 54 slots.'],
+  ['Pit floor, hoppers and channel floors', 'The 3 × 3 hopper floor sits in the pit. Facing, from the top-left of the plan: row 1 → east, ↓ south, west ←; row 2 → east, ↓ south, west ←; row 3 → east, DOWN (into the chest), west ←. Channel floors are polished andesite, 5 wide.'],
+  ['Mob level: water', 'Each channel is 3 wide with a row of 3 source blocks (white dots) at each end. They flow to the pit, where the four flows meet and push mobs to the middle. Arrows show flow direction.'],
+  ['Headroom', 'One block of air above the water. Channel walls and pit walls are two blocks high. The 3 × 3 drop shafts come down through this layer as falling water.'],
+  ['Walkway plate and chamber floors', 'Ground level. Chamber floors have a 3 × 3 hole in the middle. The kill room has a pedestal in the middle and a one-block bridge to the south; the other seven cells of the 3 × 3 hatch stay open.'],
+  ['Chamber water, booth, corridors', 'Chamber floors carry a layer of flowing water with four source blocks at the edge midpoints. The booth and corridors start here. Step up on the stone brick step to reach each plug.'],
+  ['Spawners', 'The four spawners sit in the middle of each chamber. This is also the height of the cobblestone plugs, the booth windows and the door.'],
+  ['Stalactites and upper windows', 'Each spawner hangs from two stone bricks under the roof. Only chamber walls, the corridor walls and the booth windows are on this layer.'],
+  ['Corridor and booth roof', 'Roof of the booth and corridors, with four redstone lamps over the hatch. Chamber roofs are one layer higher.'],
+  ['Chamber roofs', 'A flat stone brick roof on each 11 × 11 chamber. Nothing else.']
+];
+const ly = $('#ly'), plan = $('#plan'); let lyGrid = false, pinfo;
+const drawL = () => { const y = +ly.value; $('#lyv').textContent = y; pinfo = drawLayer(plan, M, y, { grid: lyGrid }); const t = $('#laytext'); t.innerHTML = ''; t.appendChild(el('div', 'card', '<h3>Layer ' + y + '</h3><b>' + esc(LAYERS[y][0]) + '</b><p style="margin-top:6px">' + esc(LAYERS[y][1]) + '</p>')); const c = {}; for (let z = 0; z < FD; z++) for (let x = 0; x < FW; x++) { const b = M.v[y][z][x]; if (b && !BL[b.m].virtual) c[b.m] = (c[b.m] || 0) + 1; } const ent = Object.entries(c).sort((a, b) => b[1] - a[1]); const card = el('div', 'card', '<h3>Blocks on this layer</h3>'); const g = el('div', 'mats'); ent.forEach(([k, n]) => { const r = el('div', 'mat'); r.style.gridTemplateColumns = '18px minmax(0,1fr) 70px'; r.appendChild(swatch(k, 18)); r.appendChild(el('span', '', esc(BL[k].name))); r.appendChild(el('span', 'n', String(n))); g.appendChild(r); }); card.appendChild(g); if (!ent.length) card.appendChild(el('p', 'small', 'Empty.')); t.appendChild(card); };
+ly.oninput = drawL; $('#lyg').onclick = e => { lyGrid = !lyGrid; e.currentTarget.setAttribute('aria-pressed', String(lyGrid)); drawL(); };
+plan.addEventListener('mousemove', e => { const r = plan.getBoundingClientRect(), s = plan.width / r.width, x = Math.floor(((e.clientX - r.left) * s - pinfo.mg) / pinfo.c), z = Math.floor(((e.clientY - r.top) * s - pinfo.mg) / pinfo.c), y = +ly.value; const b = M.get(x, y, z); $('#ro').textContent = (x >= 0 && z >= 0 && x < FW && z < FD) ? 'x ' + x + ', y ' + y + ', z ' + z + '  ·  ' + (b ? BL[b.m].name + (b.src ? ' (source)' : b.m === 'water' ? ' (flowing)' : '') : 'air') : ''; });
+drawL();
+
+/* ---------- section ---------- */
+let ax = 'x'; const secC = $('#sec'), slr = $('#sl');
+const drawS = () => { $('#slv').textContent = slr.value; drawSection(secC, M, ax, +slr.value); };
+slr.oninput = drawS;
+document.querySelectorAll('#axseg button').forEach(b => b.onclick = () => { ax = b.dataset.ax; document.querySelectorAll('#axseg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); drawS(); });
+drawS();
+
+/* ---------- fit table ---------- */
+const FIT = [
+  ['Spawn chamber', '9 wide (octagon), 4 high', MOBS.map(() => 'ok')],
+  ['Drop shaft', '3 × 3, open', MOBS.map(() => 'ok')],
+  ['Transport channel', '3 wide, 2 high (1 water + 1 air)', MOBS.map(m => m.h <= 2 && m.w <= 3 ? 'ok' : 'bad')],
+  ['Kill pit', '7 × 7, 2 high', MOBS.map(m => m.h <= 2 ? 'ok' : 'bad')],
+  ['Hatch cells above the pit', '1 × 1, 2.05 blocks above the heads', ['no', 'no', 'no']]
+];
+$('#fitt').innerHTML = '<thead><tr><th>Passage</th><th>Free space</th>' + MOBS.map(m => '<th>' + m.n + '<br><span style="text-transform:none;letter-spacing:0">' + m.w + ' × ' + m.h + '</span></th>').join('') + '</tr></thead><tbody>' +
+  FIT.map(r => '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td>' + r[2].map(v => '<td class="' + (v === 'ok' ? 'ok' : v === 'no' ? 'warn' : 'bad') + '">' + (v === 'ok' ? 'Fits' : v === 'no' ? 'Cannot get through (by design)' : 'Does not fit') + '</td>').join('') + '</tr>').join('') + '</tbody>';
+
+function drawA() {
+  const cv = $('#dgA'), s = 84, mg = 36; cv.width = 3 * s + mg * 2; cv.height = 2 * s + mg * 2 + 56; const g = cv.getContext('2d');
+  g.fillStyle = '#12171b'; g.fillRect(0, 0, cv.width, cv.height);
+  const X = x => mg + x * s, Y = y => mg + (2 - y) * s + 8;
+  g.fillStyle = '#4b4f55'; g.fillRect(X(-.4), Y(0), s * 3.8, s * .4); g.fillRect(X(-.4), Y(2.4), s * 3.8, s * .4); g.fillRect(X(-.4), Y(2.4), s * .4, s * 2.8); g.fillRect(X(3), Y(2.4), s * .4, s * 2.8);
+  g.fillStyle = 'rgba(61,115,224,.7)'; g.fillRect(X(0), Y(.8), 3 * s, .8 * s);
+  g.setLineDash([4, 4]); g.strokeStyle = 'rgba(255,255,255,.45)'; g.strokeRect(X(0), Y(2), 3 * s, 2 * s); g.setLineDash([]);
+  const place = [[.45, MOBS[0], '#5b8f4a'], [1.55, MOBS[1], '#6a4a4a'], [2.6, MOBS[2], '#8a4a6a']];
+  g.font = '600 12px "IBM Plex Sans", sans-serif'; g.textAlign = 'center';
+  place.forEach(([cx, m, col]) => { g.fillStyle = col; g.fillRect(X(cx - m.w / 2), Y(m.h), m.w * s, m.h * s); g.strokeStyle = 'rgba(255,255,255,.7)'; g.strokeRect(X(cx - m.w / 2), Y(m.h), m.w * s, m.h * s); g.fillStyle = '#fff'; g.fillText(m.n, X(cx), Y(0) + 34); g.fillStyle = '#9fb0b8'; g.fillText(m.w + ' \u00d7 ' + m.h, X(cx), Y(0) + 49); });
+  g.fillStyle = '#c8d2d6'; g.textAlign = 'left'; g.font = '600 12px "IBM Plex Sans", sans-serif';
+  g.fillText('Channel: 3 wide, 2 high (dashed).', 10, cv.height - 26); g.fillText('The zombie leaves 0.05 spare at the top.', 10, cv.height - 9);
+}
+function drawB() {
+  const cv = $('#dgB'), s = 54, W = 8, H = 9.6; cv.width = W * s; cv.height = H * s; const g = cv.getContext('2d');
+  g.fillStyle = '#12171b'; g.fillRect(0, 0, cv.width, cv.height);
+  const X = x => (x + W / 2) * s, Y = y => cv.height - (y - 2) * s - 10;
+  g.fillStyle = '#4b4f55'; g.fillRect(0, Y(3), cv.width, s);
+  g.fillStyle = 'rgba(61,115,224,.55)'; g.fillRect(0, Y(3.5), cv.width, .5 * s);
+  g.fillStyle = '#7a7d82'; g.fillRect(0, Y(6), X(-1.5), s); g.fillRect(X(1.5), Y(6), cv.width - X(1.5), s); g.fillRect(X(-.5), Y(6), s, s);
+  g.fillStyle = '#2aa3b0'; g.fillRect(X(-.3), Y(7.8), .6 * s, 1.8 * s); g.fillStyle = '#ffe08a'; g.fillRect(X(-.3), Y(7.8), .6 * s, .3 * s);
+  g.setLineDash([6, 5]); g.strokeStyle = '#ffd24a'; g.lineWidth = 1.5; g.beginPath(); g.arc(X(0), Y(EYE), REACH * s, 0, Math.PI * 2); g.stroke(); g.setLineDash([]);
+  g.fillStyle = '#ffd24a'; g.beginPath(); g.arc(X(0), Y(EYE), 3.5, 0, 7); g.fill();
+  const z = MOBS[0], sp = MOBS[1];
+  g.fillStyle = '#5b8f4a'; g.fillRect(X(1 - z.w / 2), Y(3 + z.h), z.w * s, z.h * s); g.fillRect(X(-1 - z.w / 2), Y(3 + z.h), z.w * s, z.h * s);
+  g.fillStyle = '#6a4a4a'; g.fillRect(X(2.0), Y(3 + sp.h), sp.w * s * .9, sp.h * s);
+  g.fillStyle = 'rgba(255,255,255,.14)'; g.fillRect(X(-.5), Y(3 + z.h), s, z.h * s);
+  g.font = '600 11px "IBM Plex Sans", sans-serif'; g.fillStyle = '#c8d2d6'; g.textAlign = 'center';
+  g.fillText('open', X(1), Y(5.4)); g.fillText('open', X(-1), Y(5.4)); g.fillStyle = '#12171b'; g.fillText('stand', X(0), Y(5.4));
+  g.fillStyle = '#c8d2d6'; g.fillText('hit zone', X(1), Y(3) + 16); g.fillText('hit zone', X(-1), Y(3) + 16); g.fillText('under the pedestal: out of reach', X(0), Y(2) + 8);
+  g.textAlign = 'left'; g.fillStyle = '#ffd24a'; g.fillText('Dashed circle: 3.0 blocks of reach from the eyes', 10, 18);
+  g.fillStyle = '#c8d2d6'; g.fillText('Eyes ' + EYE.toFixed(2) + ', zombie head ' + HEAD.toFixed(2) + ': gap ' + (EYE - HEAD).toFixed(2), 10, 36);
+  g.fillText('Spare reach sideways at head height: ' + HREACH.toFixed(2) + ' blocks', 10, 54);
+}
+drawA(); drawB();
+
+/* ---------- build order ---------- */
+const STEPS = [
+  'Pick a flat square 37 × 37. Layer 5 (the walkway plate) is ground level. Layers 0–4 are dug down below it, layers 6–10 stand above it.',
+  'Layers 0–2: the 9 × 9 basement block, the polished andesite pit floor, and the 5-wide channel floors running out to each chamber.',
+  'Place the nine hoppers in the 3 × 3 square, facing as listed on layer 2, then the large chest under the bottom-middle and bottom-right cells. Drop an item on a corner hopper to test that it ends up in the chest.',
+  'Layers 3–4: pit walls, channel walls (two high) and the four openings into the pit. Keep everything dark. No torches in the pit, channels or chambers.',
+  'Layer 5: chamber floors with their 3 × 3 holes, corridor plates, the pit ceiling with pedestal and bridge, and the 7 open hatch cells.',
+  'Chambers: walls up to layer 9, the corner fill that makes each room an octagon, the roof on layer 10, and the two-block stalactite.',
+  'Booth and corridors: walls, glass windows, the roof, the four lamps (switch them off while farming) and the door.',
+  'Water. Place the 40 source blocks: 4 in each chamber floor, and 2 rows of 3 in each channel. The pit has no sources of its own; the channels fill it.',
+  'Put the cobblestone plugs in the chamber doors. Put the spawners in last: stand in the chamber, look up at the underside of the stalactite and place each spawner there.',
+  'Change a spawner’s mob with a spawn egg if you need to. Stand on the pedestal (sneak) and watch the pit fill.'
+];
+STEPS.forEach(t => $('#steps').appendChild(el('li', '', esc(t))));
+const counts = M.counts(), mx = counts[0][1]; const mg = $('#mats');
+counts.forEach(([k, n]) => { const r = el('div', 'mat'); r.appendChild(swatch(k, 18)); r.appendChild(el('span', '', esc(BL[k].name + (k === 'water' ? ' (source blocks)' : '')))); r.appendChild(el('div', 'bar', '<i style="width:' + Math.max(2, n / mx * 100) + '%"></i>')); r.appendChild(el('span', 'n', stacks(n))); mg.appendChild(r); });
+$('#matn').textContent = 'Plus 4 mob spawners, which you supply. Counts are computed from the same model as the pictures. The 9 hoppers need 45 iron ingots.';
+
+/* ---------- using it ---------- */
+const L = $('#usel'), R = $('#user');
+L.appendChild(el('div', 'card', '<h3>Killing</h3><ul class="plain"><li>Stand on the pedestal and hold <b>sneak</b>. The hatch around you is open and a step off the pedestal is a three-block drop into the mobs.</li><li>Your eyes are ' + EYE.toFixed(2) + ' above the pit floor and a zombie’s head is ' + HEAD.toFixed(2) + '. That leaves ' + HREACH.toFixed(2) + ' blocks of sideways reach at head height, which covers all seven open cells.</li><li>The cell under the pedestal and the cell under the bridge are out of reach. Mobs that gather there are not wasted: they move into the open cells as you kill.</li><li>Mobs below cannot get to you. The hatch is 2 blocks above their heads, the cells are 1 × 1 (a spider is 1.4 wide), and a cave spider cannot jump two blocks.</li><li>XP orbs fly to you through the open cells.</li></ul>'));
+L.appendChild(el('div', 'card', '<h3>Loot</h3><ul class="plain"><li>Drops fall into the pit water above the 3 × 3 hoppers, which pull them in and pass them down to the chest.</li><li>If a few items settle outside the hoppers, add a ring of hoppers around the 3 × 3 or widen it to 5 × 5.</li><li>The chest holds 54 slots. To double it, put a hopper under the large chest and a second chest under that.</li></ul>'));
+R.appendChild(el('div', 'card', '<h3>Spawner reference (Java)</h3><table><tbody><tr><td>Activates when a player is within</td><td>16 blocks</td></tr><tr><td>Delay between attempts</td><td>10 – 40 seconds</td></tr><tr><td>Mobs per attempt</td><td>up to 4</td></tr><tr><td>Spawn area</td><td>±4 blocks sideways, ±1 up and down</td></tr><tr><td>Stops spawning at</td><td>6 of the same mob within 4 blocks</td></tr><tr><td>Distance, spawner to stand</td><td>13 blocks horizontal, about 1.5 vertical</td></tr></tbody></table><p class="small" style="margin-top:8px">The most one spawner can produce is about 575 mobs an hour. To pause the farm, walk more than 16 blocks away.</p>'));
+R.appendChild(el('div', 'callout', '<b>I could not test this in the game.</b><ul class="plain" style="margin-top:6px"><li><b>Light.</b> Hostile mobs from a normal spawner need darkness. Keep the pit, channels and chambers at light level 0. The lamps in the booth roof can leak light down the hatch, so keep them off while farming.</li><li><b>Spiders.</b> Spiders and cave spiders climb walls. The roofs stop them leaving, but some may hang on chamber walls instead of washing out. If a spawner stalls, kill them by hand.</li><li><b>Headroom.</b> The channel is exactly 2 blocks high for a 1.95 zombie. If zombies jam, raise the channel roof by one block.</li><li><b>Reach.</b> Attack ranges changed between versions. If a zombie below ever hits you, raise the pedestal by a half slab.</li><li><b>Pile-up.</b> More than about 24 mobs in one spot take cramming damage and die without drops. Kill regularly or pause the farm.</li></ul>'));
+
+</script>
+
+</body>
+</html>
