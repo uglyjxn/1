@@ -3,37 +3,53 @@
 <head>
 <meta charset="utf-8">
 <title>The New Burridge Goof-Proof Color Wheel</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
 <style>
-  :root { --f: "Futura","Futura PT","Century Gothic","Avenir Next","Trebuchet MS",Arial,sans-serif; }
+  @font-face { font-family:"Jost"; font-weight:400; src:url(fonts/jost-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family:"Jost"; font-weight:500; src:url(fonts/jost-latin-500-normal.woff2) format("woff2"); }
+  @font-face { font-family:"Jost"; font-weight:700; src:url(fonts/jost-latin-700-normal.woff2) format("woff2"); }
+  @font-face { font-family:"Jost"; font-weight:700; font-style:italic; src:url(fonts/jost-latin-700-italic.woff2) format("woff2"); }
+  @font-face { font-family:"Jost"; font-weight:800; src:url(fonts/jost-latin-800-normal.woff2) format("woff2"); }
+  @font-face { font-family:"Jost"; font-weight:800; font-style:italic; src:url(fonts/jost-latin-800-italic.woff2) format("woff2"); }
+  @font-face { font-family:"PT Sans Narrow"; font-weight:400; src:url(fonts/pt-sans-narrow-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family:"PT Sans Narrow"; font-weight:700; src:url(fonts/pt-sans-narrow-latin-700-normal.woff2) format("woff2"); }
+  :root { --f: "Jost","Futura","Century Gothic",Arial,sans-serif; --n: "PT Sans Narrow","Myriad Pro Condensed","Arial Narrow",Arial,sans-serif; }
   * { box-sizing: border-box; }
-  body { margin:0; font:13px/1.4 Arial,"Helvetica Neue",sans-serif; background:#fff; color:#111; }
-  header { background:#58585B; color:#fff; padding:10px 34px; font:800 38px/1.15 var(--f); letter-spacing:.05em; white-space:nowrap; overflow:hidden; }
-  header sup { font-size:14px; vertical-align:top; }
+  body { margin:0; font:13px/1.4 var(--n); background:#fff; color:#111; }
+  header { background:#58585B; color:#fff; padding:9px 34px; font:700 38px/1.2 var(--f); letter-spacing:.075em; white-space:nowrap; overflow:hidden; }
+  header sup { font-size:14px; vertical-align:top; letter-spacing:0; }
   .page { max-width:1000px; margin:0 auto; padding:0 34px 26px; position:relative; }
-  .sub { font:700 36px/1.1 "Myriad Pro Condensed","Arial Narrow","Roboto Condensed",Arial,sans-serif; font-stretch:condensed; margin:8px 0 0; letter-spacing:-.02em; }
+  .sub { font:700 38px/1.1 var(--n); margin:8px 0 0; letter-spacing:-.01em; }
   #logo { position:absolute; right:34px; top:12px; width:76px; }
-  #wheel { display:block; width:100%; max-width:820px; margin:-4px auto 0; touch-action:none; user-select:none; }
+  .stage { position:relative; }
+  #wheel { display:block; width:100%; max-width:820px; margin:-6px auto 0; touch-action:none; user-select:none; }
   .wedge { cursor:pointer; } .wedge:hover { filter:brightness(1.06); }
   #spinner { transition: transform .8s cubic-bezier(.25,1.15,.4,1); cursor:grab; }
   #spinner.drag { transition:none; cursor:grabbing; }
-  svg text { font-family:var(--f); font-weight:800; pointer-events:none; }
+  svg text { font-family:var(--f); font-weight:700; pointer-events:none; }
   .it { font-style:italic; }
-  h3 { font:700 15px/1 Arial,sans-serif; margin:14px 0 10px; padding-bottom:6px; border-bottom:1.5px solid #111; }
+  #picked { position:absolute; left:0; bottom:6px; width:210px; }
+  #picked .ln { font-size:12.5px; line-height:1.5; }
+  .sw { display:inline-block; width:10px; height:10px; margin-right:5px; border:1px solid rgba(0,0,0,.3); }
+  h3 { font:700 15px/1 var(--n); margin:12px 0 10px; padding-bottom:6px; border-bottom:1.5px solid #111; }
   .ex { display:grid; grid-template-columns:repeat(6,1fr); gap:16px; }
   .ex .card { cursor:pointer; } .ex img { width:100%; display:block; margin-bottom:8px; outline:2px solid transparent; }
   .ex .card:hover img, .ex .card.on img { outline-color:#111; }
-  .ln { display:flex; font-size:11px; line-height:1.55; white-space:nowrap; }
+  .ln { display:flex; font-size:11.5px; line-height:1.55; white-space:nowrap; }
   .ln u { flex:1; text-decoration:none; border-bottom:1px dotted #444; margin:0 2px 4px; }
-  .cols { display:grid; grid-template-columns:1fr 1fr; gap:26px; margin-top:6px; }
-  .live .ln { font-size:13px; } .live .sw { display:inline-block; width:12px; height:12px; margin-right:6px; vertical-align:-1px; border:1px solid rgba(0,0,0,.3); }
+  .text { display:grid; grid-template-columns:1fr 1fr 1fr; gap:26px; margin-top:26px; font-size:12.8px; line-height:1.28; }
+  .text p { margin:0; } .text p.i { text-indent:1.6em; } .text h4 { font:700 13.4px/1.28 var(--n); margin:0; text-align:center; }
+  .text .cap::first-letter { font-size:1.9em; font-weight:700; line-height:.8; }
+  .text ol { margin:0; padding:0; list-style:none; counter-reset:n; } .text li { counter-increment:n; padding-left:1.7em; text-indent:-1.7em; }
+  .text li::before { content:counter(n) ".  "; }
+  .col3 { position:relative; } .sig { margin-top:70px; font:800 38px/1.02 var(--f); letter-spacing:-.005em; } .sig small { display:block; font:400 13px/1.3 var(--n); margin-top:8px; }
+  .isbn { font:700 8px/1.3 var(--f); letter-spacing:.14em; margin-top:34px; } .isbn img { display:block; width:133px; margin-top:2px; }
+  .studio { margin-top:30px; border-top:1.5px solid #111; padding-top:4px; display:grid; grid-template-columns:1fr 1fr; gap:26px; font-family:Arial,sans-serif; }
   .mix { display:flex; gap:5px; margin:6px 0; } .mix i { flex:1; height:40px; border:1px solid rgba(0,0,0,.25); }
   input[type=range] { width:100%; } label { font-size:12px; }
-  .verdict { font-weight:700; } .small { font-size:12px; color:#444; } ol { margin:4px 0; padding-left:18px; } li { margin:3px 0; }
-  button { font:inherit; padding:4px 12px; border:1px solid #111; background:#fff; border-radius:3px; cursor:pointer; margin-right:6px; }
+  .verdict { font-weight:700; } .small { font-size:12px; color:#444; }
+  button { font:inherit; font-size:13px; padding:4px 12px; border:1px solid #111; background:#fff; border-radius:3px; cursor:pointer; margin-right:6px; }
   button:hover { background:#111; color:#fff; }
-  .sig { text-align:right; font:800 34px/1 var(--f); letter-spacing:.01em; margin-top:16px; }
-  .sig small { display:block; font:400 11px Arial; margin-top:6px; }
   #toast { position:fixed; bottom:12px; left:14px; background:#111; color:#fff; padding:5px 12px; border-radius:3px; opacity:0; transition:opacity .2s; }
   #toast.show { opacity:1; }
 </style>
@@ -43,33 +59,60 @@
 <div class="page">
   <img id="logo" src="assets/logo.png" alt="Burridge Workshop for Artists">
   <div class="sub">Painting with Four Colors</div>
-  <svg id="wheel" viewBox="-380 -380 760 760" role="img" aria-label="Goof-Proof color wheel"></svg>
+  <div class="stage">
+    <svg id="wheel" viewBox="-380 -380 760 760" role="img" aria-label="Goof-Proof color wheel"></svg>
+    <div id="picked" title="Your current four colors (click a line to copy its hex)"></div>
+  </div>
 
-  <h3>Paint Sketch Examples <span class="small" style="font-weight:400">— click one to set the wheel</span></h3>
+  <h3>Paint Sketch Examples <span class="small" style="font-weight:400">(click one to set the wheel)</span></h3>
   <div class="ex" id="examples"></div>
 
-  <div class="cols">
-    <div class="live">
-      <h3>Your Four Colors</h3>
-      <div id="picked"></div>
-      <p><button id="spin">Spin the diamond</button><label><input type="checkbox" id="marks"> mark the four on the wheel</label></p>
+  <div class="text">
+    <div>
+      <p class="cap">The standard color wheel you are currently using is made from the three primary colors - red, yellow and blue -&nbsp; widely used today. It works great. My Goof-Proof Color system is based upon a quasi-scientific approach used in the paint mixing industry (Munsell). It is based, not on three primary colors, but five primary colors – red, yellow, green, blue and purple and five secondary colors.</p>
+      <p class="i">The spinning diamond-shaped arrow points to one main color – your overall dominant color in the painting.&nbsp; The color opposite your dominant color pointer can be the focal point in the painting.</p>
+      <p class="i">The remaining two points will point to two additional colors called the “spice” colors. So there you have it. One dominant overall color, one focal point color. The two spice colors do exactly as their name implies – they add spice when placed close to the focal color.</p>
+      <h4>Here’s how Color Works for Me</h4>
+      <p class="i">I have found that my paintings have a dominant overall color. In fact, I refer to my paintings as “my red painting,” or “my green painting” and so on.</p>
+      <p><b>Step 1.&nbsp; The Dominant Color.</b> The first few minutes on my painting, I stick to one dominant color, working out the dark areas and the light areas. I work on the different value tones at this time. One dominant color, using dark and light values of this one color.</p>
+      <p><b>Step 2.&nbsp; Focal Point Color.</b> The color opposite the dominant color is your focal point in the painting. Used sparingly and only around the center of interest on the painting, this color will add a visually pleasing contrast and excitement around the focal area. Consequently, if used</p>
+    </div>
+    <div>
+      <p>haphazardly all over the painting, it may tend to cancel itself out as a focus. You might see that the second color might be visual chaos if used in too many places, and defeats the effectiveness of one focal point.</p>
+      <p class="i">For instance the color Red is the reddest when Blue-Green is&nbsp; the focal point. A still life with lots of red apples plus warm red colors overall could appear redder when you add a single Blue-Green wine bottle to the composition. Or a still life of a pile of juicy oranges will be even more orange if a blue vase is a focal point.</p>
+      <p><b>Step 3 &amp; 4.</b> Now add the two <b>Spice Colors</b> around the focal point color. Kick up that focal point color by adding a pinch of these two colors. They will increase visual excitement when placed near the center of interest. Think of these two colors as the two characters in a play that add spice or comic relief. They are refreshing and actually add visual spice to the mix when used sparingly and as equal partners.</p>
+      <h4>Goof-Proof Paint Sketching</h4>
+      <p class="i">Practice this: Make several small abstract paint sketches based on what I’ve just described. See above paint sketch examples.</p>
+      <p>&nbsp;</p>
+      <p class="i">My Goof-Proof Color Wheel will also help you mix bright and clean color mixes. The color wheel is divided into 4 equal sections. For bright mixes, stay within each section. For dull mixes, cross over to another section and the color mix will gray down. Another feature – if you “gray down” the focal point color, you can use that diluted grayed down color in a much larger area and not just around the focal point. This will appear to make the dominant color more intense.</p>
+    </div>
+    <div class="col3">
+      <p><b>Summary.</b></p>
+      <ol>
+        <li>The painting can have an overall Dominant color.</li>
+        <li>Use the focal point color sparingly or you can gray the color down and use it in a larger area.</li>
+        <li>Two spice colors may be sprinkled sparingly near the focal point color.</li>
+      </ol>
+      <p style="margin-top:6px">Note: I also use black and white paint along with these four colors.</p>
+      <div class="sig">Robert<br>Burridge<small>©2012 Robert Burridge<br>www.RobertBurridge.com</small></div>
+      <div class="isbn"><img src="assets/barcode.png" alt="ISBN 978-0-9837779-2-2 barcode"></div>
+    </div>
+  </div>
+
+  <div class="studio">
+    <div>
+      <h3>Studio</h3>
+      <p><button id="spin">Spin the diamond</button><label><input type="checkbox" id="marks"> mark the four colors on the wheel</label></p>
+      <p class="small">Click a wedge or a sketch, or drag the hub's diamond, to choose the dominant color. The four colors are listed at the lower left of the wheel (click one to copy its hex). Shift-click a wedge to pick a mix partner.</p>
+    </div>
+    <div>
       <h3>Mix <span id="mixlabel" style="font-weight:400"></span></h3>
       <div class="mix"><i id="mA"></i><i id="mR"></i><i id="mB"></i></div>
       <input type="range" id="ratio" min="0" max="100" value="50">
       <div class="verdict" id="verdict"></div><div class="small" id="mixhex"></div>
-      <p class="small">Shift-click a wedge to choose the color to mix with the dominant color.</p>
-    </div>
-    <div>
-      <h3>Summary</h3>
-      <ol>
-        <li>The painting can have an overall <b>Dominant</b> color.</li>
-        <li>Use the <b>Focal Point</b> color (opposite the dominant) sparingly, or gray the color down and use it in a larger area.</li>
-        <li>Two <b>Spice</b> colors may be sprinkled sparingly near the focal point color.</li>
-      </ol>
-      <p class="small">Note: black and white paint go along with these four colors. Click or drag the diamond to point it at your dominant color. Mixes inside one of the four sections of the wheel stay bright and clean; cross the line and they dull down.</p>
+      <p class="small">Mix colors are an estimate of paint mixing; the bright/dull verdict follows the wheel's four sections.</p>
     </div>
   </div>
-  <div class="sig">Robert Burridge<small>©2012 Robert Burridge · www.RobertBurridge.com</small></div>
 </div>
 <div id="toast"></div>
 <script src="palette.js"></script>

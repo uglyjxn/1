@@ -2,7 +2,9 @@
   const P = window.PALETTE, C = window.WHEEL_COLORS, EX = window.EXAMPLES, N = P.length, STEP = 360 / N, NS = 'http://www.w3.org/2000/svg';
   const svg = document.getElementById('wheel');
   // Geometry measured from the printed wheel (units = scan pixels, centre at 0,0).
-  const DISC = 147, D_OUT = 271, DIAMOND = 131, OUTER_RING = 364;
+  const DISC = 147, D_OUT = 273.25, OUTER_RING = 363.6, HUB = [1.2, 2.9];  // hub sits ~3px off the wheel's axis in the print
+  // kite-shaped diamond (relative to the hub centre): top, right, bottom, left
+  const KITE = [[0.7, -136.1], [129.9, 40.9], [0.7, 134.4], [-128.6, 40.9]];
   const wrap = i => ((i % N) + N) % N;
   const wedgeAt = deg => wrap(Math.round(deg / STEP));
   const rad = d => d * Math.PI / 180;
@@ -28,7 +30,7 @@
   }
 
   function wedgePoints(i) {
-    const w = y => 40.5 + (y - 149) * 0.2377;   // half width at distance y from the centre
+    const w = y => 42.25 + (y - 149) * 0.2377;   // half width at distance y from the centre
     const local = [[-w(135), 135], [w(135), 135], [w(D_OUT), D_OUT], [-w(D_OUT), D_OUT]];
     const a = rad(i * STEP), s = Math.sin(a), c = Math.cos(a);
     return local.map(([x, y]) => `${(x * c + y * s).toFixed(2)},${(x * s - y * c).toFixed(2)}`).join(' ');
@@ -40,9 +42,9 @@
   }
 
   let defs, spinner, badges = [];
-  function ringText(id, a1, a2, r, str, size, fill, textLength) {
+  function ringText(id, a1, a2, r, str, size, fill, textLength, upright) {
     el('path', { id, d: arc(r, a1, a2), fill: 'none' }, defs);
-    const t = el('text', { 'font-size': size, fill, class: 'it' });
+    const t = el('text', { 'font-size': size, fill, class: upright ? '' : 'it' });
     const tp = el('textPath', { href: '#' + id, startOffset: '50%', 'text-anchor': 'middle' }, t, str);
     if (textLength) { tp.setAttribute('textLength', textLength); tp.setAttribute('lengthAdjust', 'spacing'); }
   }
@@ -65,20 +67,23 @@
     el('circle', { r: OUTER_RING, fill: 'none', stroke: '#111', 'stroke-width': 0.9 });
 
     // section dimension lines (line - text - line), text 15.5 deg either side of 45/135/225/315
-    const R = 319;
+    const R = 318;
     dim(R, 358.5, 331, 'start'); dim(R, 301, 271.5, 'end');            // top-left
     dim(R, 1.5, 29);          dim(R, 61, 88.5);                         // top-right
     dim(R, 91.5, 119);        dim(R, 151, 178.5, 'end');                // bottom-right (arrow at tick end only)
     dim(R, 268.5, 241);       dim(R, 211, 181.5, 'start');              // bottom-left
-    ringText('t-tl', 301, 331, 313, 'Bright and Clean Mixes', 14.5, '#111');
-    ringText('t-tr', 29, 61, 313, 'Bright and Clean Mixes', 14.5, '#111');
-    ringText('t-br', 151, 119, 325, 'Bright and Clean Mixes', 14.5, '#111');
-    ringText('t-bl', 241, 211, 325, 'Bright and Clean Mixes', 14.5, '#111');
+    ringText('t-tl', 301, 331, 312.2, 'Bright and Clean Mixes', 14.5, '#111');
+    ringText('t-tr', 29, 61, 312.2, 'Bright and Clean Mixes', 14.5, '#111');
+    ringText('t-br', 151, 119, 323.6, 'Bright and Clean Mixes', 14.5, '#111');
+    ringText('t-bl', 241, 211, 323.2, 'Bright and Clean Mixes', 14.5, '#111');
     // "cross the line" arrows at the bottom, plus section ticks
     dim(R - 6, 178, 206); dim(R - 6, 182, 154);
     ringText('t-cross', 206, 154, 342, 'Cross the Line • Dull Mixes', 14.5, '#111');
     tick(R - 9, R + 12, 0); tick(R - 9, R + 4, 180);
-    [270, 90].forEach(a => { const s = a === 270 ? -1 : 1; el('line', { x1: s * 175, y1: -2, x2: s * (OUTER_RING - 2), y2: -2, stroke: '#8a8a8a', 'stroke-width': 1.6 }); });
+    [[-363.4, -176.4], [176.4, 329.6]].forEach(([x1, x2]) => el('line', { x1, y1: 0.45, x2, y2: 0.45, stroke: '#6e6e6e', 'stroke-width': 1.3 }));
+    // maker's mark and web address along the right edge
+    el('image', { href: 'assets/edge-logo.png', x: 322, y: -29, width: 36, height: 30 });
+    ringText('t-url', 111, 89.2, 347, 'Robert Burridge.com', 11.5, '#111', 0, true);
     ringText('t-title', -40, 40, 333, 'ROBERT BURRIDGE GOOF-PROOF COLOR WHEEL™', 20, C.red, 456);
 
     // wedges + hue names
@@ -90,10 +95,10 @@
     });
 
     // black hub + spinning diamond
-    el('circle', { r: DISC, fill: C.disc });
-    spinner = el('g', { id: 'spinner' });
-    const D = DIAMOND;
-    el('polygon', { points: `0,${-D} ${D},0 0,${D} ${-D},0`, fill: '#fff' }, spinner);
+    const hub = el('g', { transform: `translate(${HUB[0]},${HUB[1]})` });
+    el('circle', { r: DISC, fill: C.disc }, hub);
+    spinner = el('g', { id: 'spinner' }, hub);
+    el('polygon', { points: KITE.map(p => p.join(',')).join(' '), fill: '#fff' }, spinner);
     const tx = (x, y, s, size) => el('text', { x, y, 'font-size': size, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: '#111' }, spinner, s);
     tx(0, -92, '1', 22); tx(0, -71, 'DOMINANT', 13.5); tx(0, -58, 'COLOR', 13.5);
     tx(0, 114, '2', 22); tx(0, 80, 'FOCAL POINT', 13.5); tx(0, 93, 'COLOR', 13.5);
@@ -176,7 +181,7 @@
   svg.addEventListener('pointerdown', e => {
     const r = svg.getBoundingClientRect(), k = 760 / r.width;
     const px = (e.clientX - r.left - r.width / 2) * k, py = (e.clientY - r.top - r.height / 2) * k;
-    if (Math.hypot(px, py) <= DISC) {
+    if (Math.hypot(px - HUB[0], py - HUB[1]) <= DISC) {
       grab = pointerAngle(e) - angle; spinner.classList.add('drag');
       try { svg.setPointerCapture(e.pointerId); } catch (_) {}
     }
