@@ -4,7 +4,7 @@ const path = require('path');
 function createWindow() {
   const win = new BrowserWindow({
     width: 1000, height: 960, minWidth: 700, minHeight: 600,
-    backgroundColor: '#ffffff', title: 'The New Burridge Goof-Proof Color Wheel',
+    backgroundColor: '#ffffff', icon: path.join(__dirname, 'build', 'icon.png'), title: 'The New Burridge Goof-Proof Color Wheel',
     webPreferences: { contextIsolation: true }
   });
   Menu.setApplicationMenu(null);

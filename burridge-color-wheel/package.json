@@ -4,6 +4,47 @@
   "version": "1.0.0",
   "description": "Desktop color wheel simulator (12-hue painter's wheel with tints, shades, harmonies and mixing)",
   "main": "main.js",
-  "scripts": { "start": "electron ." },
-  "devDependencies": { "electron": "^33.0.0" }
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable --x64"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.burridge.colorwheel",
+    "productName": "Burridge Color Wheel",
+    "files": [
+      "main.js",
+      "index.html",
+      "app.js",
+      "palette.js",
+      "assets/**/*",
+      "fonts/**/*",
+      "package.json",
+      "build/icon.png"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "Burridge-Color-Wheel.${ext}",
+      "signAndEditExecutable": false
+    },
+    "portable": {
+      "artifactName": "Burridge-Color-Wheel.exe"
+    },
+    "compression": "maximum"
+  }
 }

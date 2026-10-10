@@ -25,3 +25,9 @@ Everything was measured from a scan of the printed wheel, not eyeballed:
 
 ## Known differences
 - Fonts are look-alikes, not the printer's Futura / Myriad.
+
+## Windows exe
+`download/Burridge-Color-Wheel.exe` is a single portable file (no install). Copy it to your Desktop, or run
+`download/Create-Desktop-Shortcut.bat` (keep it next to the exe and the .ico) to put a shortcut with the wheel icon on the Desktop.
+The exe is unsigned, so Windows SmartScreen may warn on first launch (More info -> Run anyway).
+Rebuild with `npm run dist` (needs network; the exe's own file icon needs Wine on Linux, so the build skips it).
