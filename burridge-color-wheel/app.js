@@ -2,7 +2,7 @@
   const P = window.PALETTE, C = window.WHEEL_COLORS, EX = window.EXAMPLES, N = P.length, STEP = 360 / N, NS = 'http://www.w3.org/2000/svg';
   const svg = document.getElementById('wheel');
   // Geometry measured from the printed wheel (units = scan pixels, centre at 0,0).
-  const DISC = 147, D_OUT = 273.25, OUTER_RING = 363.6, HUB = [1.2, 2.9];  // hub sits ~3px off the wheel's axis in the print
+  const DISC = 147, D_OUT = 273.5, OUTER_RING = 363.6, HUB = [1.16, 2.75];  // hub sits ~3px off the wheel's axis in the print
   // kite-shaped diamond (relative to the hub centre): top, right, bottom, left
   const KITE = [[0.7, -136.1], [129.9, 40.9], [0.7, 134.4], [-128.6, 40.9]];
   const wrap = i => ((i % N) + N) % N;
@@ -25,12 +25,10 @@
     return [wedgeAt(angle), wedgeAt(angle + 180), wedgeAt(angle - 90 - 0.001), wedgeAt(angle + 90 + 0.001)];
   }
 
-  function wedgePoints(i) {
-    const w = y => 42.25 + (y - 149) * 0.2377;   // half width at distance y from the centre
-    const local = [[-w(135), 135], [w(135), 135], [w(D_OUT), D_OUT], [-w(D_OUT), D_OUT]];
-    const a = rad(i * STEP), s = Math.sin(a), c = Math.cos(a);
-    return local.map(([x, y]) => `${(x * c + y * s).toFixed(2)},${(x * s - y * c).toFixed(2)}`).join(' ');
-  }
+  // Each wedge outline fitted separately to the scan (corners relative to the wheel centre; the
+  // inner corners lie under the hub). The printed wedges deviate from a perfect 36-degree grid by up to ~1 degree.
+  const WEDGES = [[[-38.05, -136.19], [40.36, -132.64], [71.46, -272.46], [-72.27, -272.36]], [[45.86, -133.42], [109.28, -86.84], [218.56, -177.89], [101.99, -262.65]], [[114.68, -79.8], [143.34, -5.89], [281.8, -15.0], [237.24, -152.13]], [[143.86, 3.7], [117.07, 78.2], [237.16, 153.86], [282.31, 16.94]], [[111.73, 85.34], [49.11, 132.31], [101.81, 264.34], [218.45, 179.64]], [[40.42, 134.56], [-37.42, 135.28], [-72.52, 273.79], [71.46, 274.16]], [[-49.43, 130.61], [-112.1, 84.84], [-219.52, 179.72], [-103.13, 264.22]], [[-117.43, 77.73], [-142.12, 3.45], [-282.84, 16.92], [-238.41, 153.61]], [[-134.04, -5.26], [-114.79, -79.23], [-238.32, -152.08], [-282.76, -15.38]], [[-109.48, -86.34], [-46.57, -132.7], [-102.99, -262.67], [-219.36, -178.15]]];
+  const wedgePoints = i => WEDGES[i].map(p => p.join(',')).join(' ');
 
   function arc(r, a1, a2) {           // a2 > a1 clockwise, a2 < a1 counter-clockwise
     const [x1, y1] = pt(r, a1), [x2, y2] = pt(r, a2);
