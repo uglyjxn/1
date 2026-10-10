@@ -3,8 +3,8 @@ const path = require('path');
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1100, height: 780, minWidth: 820, minHeight: 600,
-    backgroundColor: '#f4efe6', title: 'Burridge Color Wheel',
+    width: 1000, height: 960, minWidth: 700, minHeight: 600,
+    backgroundColor: '#ffffff', title: 'The New Burridge Goof-Proof Color Wheel',
     webPreferences: { contextIsolation: true }
   });
   Menu.setApplicationMenu(null);
