@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Copper Golem Storage Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: masthead and capacity numbers, the golem rules, explorable views (3D, layers, section), pod blueprint, build guide */
+:root {
+  --bg: #eceee9; --panel: #ffffff; --fg: #182019; --muted: #5a665e; --line: #cfd5cd;
+  --accent: #2f5bd3; --accent-fg: #ffffff; --chip: #e2e6df; --stage: #12171b; --stage-line: #2b343a;
+  --ok: #1f7a43; --bad: #b3261e; --warn: #9a6200;
+  --font-display: "Pixelify Sans", "Courier New", monospace;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0f1316; --panel: #171c20; --fg: #e5ebe6; --muted: #98a59d; --line: #2a3237; --accent: #8aa9ff; --accent-fg: #0b1020; --chip: #232b30; --ok: #66d28f; --bad: #ff8a80; --warn: #f0b95a; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0f1316; --panel: #171c20; --fg: #e5ebe6; --muted: #98a59d; --line: #2a3237; --accent: #8aa9ff; --accent-fg: #0b1020; --chip: #232b30; --ok: #66d28f; --bad: #ff8a80; --warn: #f0b95a; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--font-body); margin: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 72px; }
+h1, h2, h3 { margin: 0; font-weight: 600; text-wrap: balance; }
+h1 { font: 700 clamp(34px, 6vw, 56px)/1 var(--font-display); }
+h2 { font: 700 clamp(22px, 3.4vw, 30px)/1.1 var(--font-display); }
+h3 { font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; font-weight: 600; }
+p { margin: 0; }
+section { margin-top: 52px; }
+.sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; margin-bottom: 14px; }
+.sec-h p { color: var(--muted); max-width: 70ch; flex-basis: 100%; }
+.lede { max-width: 66ch; color: var(--muted); margin-top: 12px; font-size: 16px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 22px; }
+.fact { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; min-width: 0; }
+.fact b { display: block; font: 600 20px/1.2 var(--font-mono); font-variant-numeric: tabular-nums; }
+.fact span { color: var(--muted); font-size: 12.5px; }
+.flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.flow li { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px; counter-increment: s; }
+.flow li::before { content: counter(s); font: 700 22px/1 var(--font-display); color: var(--accent); display: block; margin-bottom: 6px; }
+.flow b { display: block; margin-bottom: 2px; }
+.flow span { color: var(--muted); font-size: 13.5px; }
+.stage { background: var(--stage); border: 1px solid var(--stage-line); border-radius: 6px; overflow: hidden; }
+.stage canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 10px; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+.seg button, .tog { all: unset; box-sizing: border-box; padding: 5px 11px; font-size: 13px; cursor: pointer; color: var(--fg); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"], .tog[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.tog { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.seg button:focus-visible, .tog:focus-visible, input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.slider { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+.slider input { width: min(260px, 50vw); accent-color: var(--accent); }
+.slider b { font-family: var(--font-mono); color: var(--fg); min-width: 2.2em; }
+.two { display: grid; grid-template-columns: minmax(0, 592px) minmax(0, 1fr); gap: 26px; align-items: start; }
+.col { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px; min-width: 0; }
+.card h3 { margin-bottom: 6px; }
+.small { font-size: 12.5px; color: var(--muted); }
+.mono { font-family: var(--font-mono); font-size: 12.5px; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.tw { overflow-x: auto; }
+.ok { color: var(--ok); font-weight: 600; } .bad { color: var(--bad); font-weight: 600; } .warn { color: var(--warn); font-weight: 600; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.steps li::marker { color: var(--accent); font-weight: 700; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend canvas { width: 16px; height: 16px; image-rendering: pixelated; border-radius: 2px; }
+.mats { display: grid; gap: 4px; }
+.mat { display: grid; grid-template-columns: 18px minmax(120px, 190px) minmax(0, 1fr) 118px; gap: 10px; align-items: center; font-size: 13px; }
+.mat canvas { width: 18px; height: 18px; image-rendering: pixelated; border-radius: 2px; }
+.mat .bar { height: 8px; background: var(--chip); border-radius: 2px; overflow: hidden; }
+.mat .bar i { display: block; height: 100%; background: var(--accent); }
+.mat .n { font: 400 12px var(--font-mono); text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.callout { border-left: 3px solid var(--warn); background: var(--panel); border-radius: 0 6px 6px 0; padding: 12px 14px; }
+.callout b { color: var(--warn); }
+ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+@media (max-width: 960px) { .two { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .mat { grid-template-columns: 18px minmax(0, 1fr) 90px; } .mat .bar { grid-column: 2 / 4; grid-row: 2; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Copper Golem Storage Room</h1>
+    <p class="lede">A 40 × 34 × 15 room, planned only for function. Five levels of 1-wide aisles with chests stacked three high on both sides, cut into sealed pods of nine sorting chests, each with its own golem and its own input chest. The layout follows what the golem can reach, and every number below is counted from the same model as the pictures.</p>
+    <div class="facts" id="facts"></div>
+  </header>
+
+  <section id="rules">
+    <div class="sec-h"><h2>What the golem can and cannot do</h2><p>These rules decide every dimension in the room. The rows marked uncertain differ between sources, so the design avoids depending on them where it can.</p></div>
+    <div class="tw"><table id="rulest"></table></div>
+    <p class="small" style="margin-top:8px" id="srcs"></p>
+  </section>
+
+  <section id="v3d">
+    <div class="sec-h"><h2>3D view</h2><p>Pick a level to look at it on its own, or show the whole room. The cut buttons slice it open.</p></div>
+    <div class="toolbar" id="tb3d"></div>
+    <div class="stage"><canvas id="iso" aria-label="Isometric view of the storage room"></canvas></div>
+    <div class="legend" id="legend3d"></div>
+  </section>
+
+  <section id="pod">
+    <div class="sec-h"><h2>One pod</h2><p>The repeating unit. Everything else is this pod copied 385 times.</p></div>
+    <div class="two">
+      <div><h3>Top view, one level</h3><div class="stage"><canvas id="dgA"></canvas></div><p class="small" style="margin-top:8px">One level, middle row. D1 to D3 are double chests, each stacked three high, so nine destinations. The input is a double copper chest with barrels above and below. A sea lantern sits in the divider wall beside each gate.</p></div>
+      <div><h3>Looking along the aisle</h3><div class="stage"><canvas id="dgB"></canvas></div></div>
+    </div>
+    <div class="two" style="margin-top:18px"><div class="col" id="podtext"></div><div class="col" id="podtext2"></div></div>
+  </section>
+
+  <section id="layers">
+    <div class="sec-h"><h2>Layer by layer</h2><p>Top-down plan of one height level at a time. Layers 1, 4, 7, 10 and 13 are the golem walking levels, one per storage level.</p></div>
+    <div class="toolbar"><div class="slider"><label for="ly">Layer</label><input id="ly" type="range" min="0" max="15" step="1" value="1"><b id="lyv">1</b></div><button class="tog" id="lyg" aria-pressed="false" type="button">5-block grid</button></div>
+    <div class="two">
+      <div><div class="stage"><canvas id="plan"></canvas></div><div class="mono" id="ro" style="margin-top:8px;color:var(--muted);min-height:1.5em">Hover the plan for coordinates and the block.</div></div>
+      <div class="col" id="laytext"></div>
+    </div>
+  </section>
+
+  <section id="sect">
+    <div class="sec-h"><h2>Cross-section</h2><p>A vertical slice. The default cuts across all eleven aisles and all five levels inside the first pod column.</p></div>
+    <div class="toolbar"><div class="seg" id="axseg"><button type="button" data-ax="x" aria-pressed="true">Across the aisles</button><button type="button" data-ax="z" aria-pressed="false">Along one aisle</button></div><div class="slider"><label for="sl">Slice at</label><input id="sl" type="range" min="0" max="39" step="1" value="6"><b id="slv">6</b></div></div>
+    <div class="stage"><canvas id="sec"></canvas></div>
+  </section>
+
+  <section id="cap">
+    <div class="sec-h"><h2>Capacity</h2></div>
+    <div class="two">
+      <div class="card"><h3>Totals, counted from the model</h3><div class="tw"><table id="capt"></table></div></div>
+      <div class="col"><div class="card"><h3>Material list</h3><div class="mats" id="mats"></div><p class="small" style="margin-top:8px" id="matn"></p></div></div>
+    </div>
+  </section>
+
+  <section id="build">
+    <div class="sec-h"><h2>Build order and first tests</h2></div>
+    <div class="two">
+      <ol class="steps" id="steps"></ol>
+      <div class="col" id="testcol"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+'use strict';
+/* ============================================================
+   Spawner farm: blocks, textures, voxel model, renderers.
+   x west->east, z north->south, y up. One voxel = one block.
+   ============================================================ */
+const FW = 40, FD = 34, FH = 16;
+
+const BL = {};
+function d(key, name, col, pat, o) { BL[key] = Object.assign({ key, name, col, pat: pat || 'n' }, o || {}); }
+d('stone', 'Stone', '#7d7d7d', 'r');
+d('smooth_stone', 'Smooth Stone', '#a0a0a0', 'n');
+d('chest', 'Chest (destination)', '#a06a2c', 'ch');
+d('copper_chest', 'Copper Chest (input)', '#c46b3e', 'ch');
+d('barrel', 'Barrel (manual, golems ignore it)', '#7d5b2d', 'bar');
+d('fence_gate', 'Fence Gate (golem stop)', '#a2834f', 'gt', { clear: true });
+d('ladder', 'Ladder', '#8b6b3a', 'ld', { clear: true });
+d('sea_lantern', 'Sea Lantern', '#c5e5da', 'e', { glow: true, gcol: '#bfe8e0' });
+d('golem', 'Copper Golem', '#e08a4f', 'n', { virtual: true });
+d('door', 'Entrance', '#8b6b3a', 'p', { virtual: true });
+
+const texCache = {};
+function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hex(c) { const n = parseInt(c.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function rgbk(rgb, k) { return 'rgb(' + [0, 1, 2].map(i => Math.max(0, Math.min(255, rgb[i] * k)) | 0).join(',') + ')'; }
+function tex(key, v) {
+  v = (v | 0) & 3; const id = key + '#' + v; if (texCache[id]) return texCache[id];
+  const b = BL[key], cv = document.createElement('canvas'); cv.width = cv.height = 16;
+  const g = cv.getContext('2d'), R = rng(hash(key) + v * 7919), base = hex(b.col);
+  const amp = { n: .07, r: .17, p: .09, b: .08, e: .07, w: .05, ch: .07, bar: .08 }[b.pat] || .08;
+  if (b.pat === 'g') {
+    g.fillStyle = 'rgba(' + base.join(',') + ',0.30)'; g.fillRect(0, 0, 16, 16);
+    g.fillStyle = 'rgba(' + base.map(c => Math.min(255, c + 40)).join(',') + ',0.95)';
+    g.fillRect(0, 0, 16, 1); g.fillRect(0, 15, 16, 1); g.fillRect(0, 0, 1, 16); g.fillRect(15, 0, 1, 16);
+    for (let i = 3; i < 11; i++) if ((i + v) % 5 < 3) g.fillRect(i, 13 - i, 1, 1);
+    return texCache[id] = cv;
+  }
+  if (b.pat === 'ld') { g.fillStyle = rgbk(base, 1); g.fillRect(2, 0, 2, 16); g.fillRect(12, 0, 2, 16); for (let y = 2; y < 16; y += 4) g.fillRect(2, y, 12, 2); return texCache[id] = cv; }
+  if (b.pat === 'gt') { g.fillStyle = rgbk(base, .9); g.fillRect(0, 2, 3, 14); g.fillRect(13, 2, 3, 14); g.fillStyle = rgbk(base, 1.05); g.fillRect(3, 5, 10, 2); g.fillRect(3, 10, 10, 2); g.fillRect(6, 5, 4, 7); return texCache[id] = cv; }
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+    let k = 1 + (R() - .5) * 2 * amp, col = base;
+    switch (b.pat) {
+      case 'b': { const row = y >> 2; if ((y & 3) === 3 || ((x + (row & 1 ? 4 : 0)) & 7) === 7) k *= .72; break; }
+      case 'p': if ((y & 3) === 3) k *= .8; break;
+      case 'e': { if (x >= 3 && x <= 12 && y >= 3 && y <= 12) k *= 1.12; if (x === 0 || y === 0 || x === 15 || y === 15) k *= .8; break; }
+      case 'w': if (((x + (y >> 2) * 5) & 7) < 3) k *= 1.12; else k *= .96; break;
+      case 'bar': { if (y === 3 || y === 4 || y === 11 || y === 12) k *= .7; if ((x & 3) === 3) k *= .88; break; }
+      case 'hp': { const edge = x < 2 || y < 2 || x > 13 || y > 13, bowl = x >= 4 && x <= 11 && y >= 4 && y <= 11, hole = x >= 6 && x <= 9 && y >= 6 && y <= 9; k *= hole ? .35 : bowl ? .7 : edge ? 1.25 : 1; break; }
+      case 'ch': { if (x < 1 || y < 1 || x > 14 || y > 14) k *= .7; if (x >= 7 && x <= 8 && y >= 6 && y <= 9) { col = [220, 220, 215]; k = 1; } break; }
+      case 'sp': { const cage = (x % 5 === 0 || y % 5 === 0); if (cage) { col = hex('#4a86a8'); k = .9 + R() * .25; } else if ((x * 7 + y * 3) % 11 === 0) { col = hex('#2f8fd0'); k = 1; } break; }
+    }
+    g.fillStyle = rgbk(col, k); g.fillRect(x, y, 1, 1);
+  }
+  return texCache[id] = cv;
+}
+
+/* ---------- voxel model ---------- */
+class Model {
+  constructor() {
+    this.v = []; for (let y = 0; y < FH; y++) { const pl = []; for (let z = 0; z < FD; z++) pl.push(new Array(FW).fill(null)); this.v.push(pl); }
+    this.notes = []; this.arrows = [];
+  }
+  inb(x, y, z) { return x >= 0 && x < FW && y >= 0 && y < FH && z >= 0 && z < FD; }
+  get(x, y, z) { return this.inb(x, y, z) ? this.v[y][z][x] : null; }
+  set(x, y, z, m, o) { if (this.inb(x, y, z)) this.v[y][z][x] = Object.assign({ m }, o || {}); }
+  fill(x0, y0, z0, x1, y1, z1, m, o) { for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) for (let x = x0; x <= x1; x++) this.set(x, y, z, m, o); }
+  clear(x0, y0, z0, x1, y1, z1) { for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) for (let x = x0; x <= x1; x++) if (this.inb(x, y, z)) this.v[y][z][x] = null; }
+  note(y, x, z, t, o) { this.notes.push(Object.assign({ y, x, z, t }, o || {})); }
+  arrow(y, x, z, dx, dz) { this.arrows.push({ y, x, z, dx, dz }); }
+  counts() {
+    const m = {};
+    for (let y = 0; y < FH; y++) for (let z = 0; z < FD; z++) for (let x = 0; x < FW; x++) {
+      const b = this.v[y][z][x]; if (!b || BL[b.m].virtual) continue;
+      if (b.m === 'water' && !b.src) continue;
+      m[b.m] = (m[b.m] || 0) + 1;
+    }
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }
+}
+
+/* ---------- isometric renderer ---------- */
+function drawIso(cv, M, o) {
+  o = o || {};
+  const minY = o.minY || 0, maxY = o.maxY === undefined ? FH : o.maxY, cutX = o.cutX === undefined ? FW : o.cutX, cutZ = o.cutZ === undefined ? FD : o.cutZ;
+  const tw = 32, th = 16, hh = 16, mg = 16;
+  cv.width = (FW + FD) * tw / 2 + 2 * mg; cv.height = (FW + FD) * th / 2 + FH * hh + 2 * mg + 8;
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  const grd = g.createLinearGradient(0, 0, 0, cv.height); grd.addColorStop(0, '#1c2730'); grd.addColorStop(1, '#101519');
+  g.fillStyle = grd; g.fillRect(0, 0, cv.width, cv.height);
+  const ox = FD * tw / 2 + mg, oy = mg + FH * hh;
+  const P = (x, z, y) => [ox + (x - z) * tw / 2, oy + (x + z) * th / 2 - y * hh];
+  const vis = (x, y, z) => { const b = M.get(x, y, z); return b && y >= minY && y < maxY && x <= cutX && z <= cutZ ? b : null; };
+  const opq = (x, y, z) => { const b = vis(x, y, z); return !!b && !BL[b.m].alpha && !BL[b.m].clear && (b.h === undefined || b.h >= 1); };
+  const poly = (pts, fill) => { g.fillStyle = fill; g.beginPath(); g.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]); g.closePath(); g.fill(); };
+  const top = (x, z, y, key, v, a) => { const p = P(x, z, y); g.save(); g.globalAlpha = a; g.setTransform(tw / 2 / 16, th / 2 / 16, -tw / 2 / 16, th / 2 / 16, p[0], p[1]); g.drawImage(tex(key, v), 0, 0, 16.7, 16.7); g.restore(); };
+  const south = (x, z, yA, yB, key, v, a) => { const p = P(x, z + 1, yB); g.save(); g.globalAlpha = a; g.setTransform(tw / 2 / 16, th / 2 / 16, 0, hh * (yB - yA) / 16, p[0], p[1]); g.drawImage(tex(key, v), 0, 0, 16.7, 16.7); g.restore(); poly([P(x, z + 1, yB), P(x + 1, z + 1, yB), P(x + 1, z + 1, yA), P(x, z + 1, yA)], 'rgba(0,0,0,' + .2 * a + ')'); };
+  const east = (x, z, yA, yB, key, v, a) => { const p = P(x + 1, z, yB); g.save(); g.globalAlpha = a; g.setTransform(-tw / 2 / 16, th / 2 / 16, 0, hh * (yB - yA) / 16, p[0], p[1]); g.drawImage(tex(key, v), 0, 0, 16.7, 16.7); g.restore(); poly([P(x + 1, z, yB), P(x + 1, z + 1, yB), P(x + 1, z + 1, yA), P(x + 1, z, yA)], 'rgba(0,0,0,' + .38 * a + ')'); };
+  const glows = [], marks = [];
+  for (let s = 0; s <= FW + FD - 2; s++) for (let x = Math.max(0, s - FD + 1); x <= Math.min(FW - 1, s); x++) {
+    const z = s - x; if (x > cutX || z > cutZ) continue;
+    for (let y = minY; y < Math.min(FH, maxY); y++) {
+      const b = M.v[y][z][x]; if (!b) continue;
+      const bl = BL[b.m], h = b.h === undefined ? 1 : b.h, a = bl.alpha || 1, v = (x * 7 + z * 13 + y * 5) & 3, yt = y + h;
+      const same = (xx, yy, zz) => { const n = vis(xx, yy, zz); return n && n.m === b.m; };
+      if (!(opq(x, y + 1, z) && h >= 1) && !(bl.alpha && same(x, y + 1, z) && h >= 1)) top(x, z, yt, b.m, v, a);
+      if (!opq(x, y, z + 1) && !(bl.alpha && same(x, y, z + 1))) south(x, z, y, yt, b.m, v, a);
+      if (!opq(x + 1, y, z) && !(bl.alpha && same(x + 1, y, z))) east(x, z, y, yt, b.m, v, a);
+      if (bl.glow) glows.push([x, z, y + .5, bl.gcol]);
+    }
+  }
+  g.globalCompositeOperation = 'lighter';
+  for (const [x, z, y, col] of glows) { const p = P(x + .5, z + .5, y), r = 20, rg = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], r), cc = hex(col); rg.addColorStop(0, 'rgba(' + cc.join(',') + ',.35)'); rg.addColorStop(1, 'rgba(' + cc.join(',') + ',0)'); g.fillStyle = rg; g.fillRect(p[0] - r, p[1] - r, r * 2, r * 2); }
+  g.globalCompositeOperation = 'source-over';
+  g.font = '700 11px "JetBrains Mono", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
+}
+
+/* ---------- layer plan renderer ---------- */
+function drawLayer(cv, M, y, o) {
+  o = o || {}; const c = 16, mg = 26;
+  cv.width = FW * c + mg + 8; cv.height = FD * c + mg + 8;
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  g.fillStyle = '#12171b'; g.fillRect(0, 0, cv.width, cv.height);
+  g.fillStyle = '#8f9ca3'; g.font = '10px "JetBrains Mono", monospace'; g.textBaseline = 'middle'; g.textAlign = 'center';
+  for (let x = 0; x < FW; x += 4) g.fillText(x, mg + x * c + c / 2, 12);
+  g.textAlign = 'right'; for (let z = 0; z < FD; z += 4) g.fillText(z, mg - 5, mg + z * c + c / 2);
+  for (let z = 0; z < FD; z++) for (let x = 0; x < FW; x++) {
+    const px = mg + x * c, py = mg + z * c, b = M.v[y][z][x], v = (x * 7 + z * 13 + y * 5) & 3;
+    if (b) {
+      const bl = BL[b.m];
+      if (bl.alpha) { const u = y > 0 ? M.v[y - 1][z][x] : null; if (u && !BL[u.m].alpha) { g.globalAlpha = .45; g.drawImage(tex(u.m, v), px, py); g.globalAlpha = 1; } else { g.fillStyle = '#1d2a33'; g.fillRect(px, py, c, c); } g.globalAlpha = (b.h !== undefined && b.h < .6) ? .6 : .85; g.drawImage(tex(b.m, v), px, py); g.globalAlpha = 1; if (b.src) { g.fillStyle = '#fff'; g.fillRect(px + 6, py + 6, 4, 4); } }
+      else { g.drawImage(tex(b.m, v), px, py); }
+      
+    } else {
+      const u = y > 0 ? M.v[y - 1][z][x] : null;
+      if (u) { g.globalAlpha = .28; g.drawImage(tex(u.m, v), px, py); g.globalAlpha = 1; }
+    }
+  }
+  g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = 1; g.strokeRect(mg - .5, mg - .5, FW * c + 1, FD * c + 1);
+  if (o.grid) { g.strokeStyle = 'rgba(255,255,255,.18)'; g.beginPath(); for (let x = 0; x <= FW; x += 4) { g.moveTo(mg + x * c + .5, mg); g.lineTo(mg + x * c + .5, mg + FD * c); } for (let z = 0; z <= FD; z += 4) { g.moveTo(mg, mg + z * c + .5); g.lineTo(mg + FW * c, mg + z * c + .5); } g.stroke(); }
+  for (const a of M.arrows) if (a.y === y) {
+    const cx = mg + (a.x + .5) * c, cy = mg + (a.z + .5) * c, L = 6, ang = Math.atan2(a.dz, a.dx);
+    g.save(); g.translate(cx, cy); g.rotate(ang); g.strokeStyle = '#fff'; g.fillStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.moveTo(-L, 0); g.lineTo(L - 2, 0); g.stroke(); g.beginPath(); g.moveTo(L + 2, 0); g.lineTo(L - 4, -4); g.lineTo(L - 4, 4); g.closePath(); g.fill(); g.restore();
+  }
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  for (const n of M.notes) if (n.y === y) {
+    const s = n.s || 11, lines = n.t.split('\n'); g.font = '600 ' + s + 'px "IBM Plex Sans", system-ui, sans-serif';
+    lines.forEach((t, i) => { const px = mg + (n.x + .5) * c, py = mg + (n.z + .5) * c + (i - (lines.length - 1) / 2) * (s + 1); g.lineWidth = 3.5; g.lineJoin = 'round'; g.strokeStyle = 'rgba(8,12,16,.95)'; g.strokeText(t, px, py); g.fillStyle = '#fff'; g.fillText(t, px, py); });
+  }
+  g.fillStyle = '#c8d2d6'; g.font = '700 10px "JetBrains Mono", monospace'; g.textAlign = 'left'; g.fillText('N↑', 2, 12);
+  return { c, mg };
+}
+
+/* ---------- cross-section renderer ---------- */
+function drawSection(cv, M, axis, k) {
+  const c = 16, mg = 26, W = (axis === 'x' ? FD : FW);
+  cv.width = W * c + mg + 8; cv.height = FH * c + mg + 8;
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  g.fillStyle = '#12171b'; g.fillRect(0, 0, cv.width, cv.height);
+  g.fillStyle = '#8f9ca3'; g.font = '10px "JetBrains Mono", monospace'; g.textBaseline = 'middle'; g.textAlign = 'center';
+  for (let i = 0; i < W; i += 4) g.fillText(i, mg + i * c + c / 2, 12);
+  g.textAlign = 'right'; for (let y = 0; y < FH; y++) g.fillText(y, mg - 5, mg + (FH - 1 - y) * c + c / 2);
+  for (let y = 0; y < FH; y++) for (let i = 0; i < W; i++) {
+    const b = axis === 'x' ? M.v[y][i][k] : M.v[y][k][i], px = mg + i * c, py = mg + (FH - 1 - y) * c, v = (i * 7 + y * 5) & 3;
+    g.fillStyle = (y >= 5 ? '#17222a' : '#141a1f'); g.fillRect(px, py, c, c);
+    if (!b) continue; const bl = BL[b.m];
+    g.globalAlpha = bl.alpha ? (b.h !== undefined && b.h < .6 ? .55 : .8) : 1;
+    const h = b.h === undefined ? 1 : b.h;
+    if (h < 1) { g.save(); g.beginPath(); g.rect(px, py + c * (1 - h), c, c * h); g.clip(); g.drawImage(tex(b.m, v), px, py); g.restore(); } else g.drawImage(tex(b.m, v), px, py);
+    g.globalAlpha = 1;
+    
+  }
+  g.strokeStyle = 'rgba(255,255,255,.28)'; g.strokeRect(mg - .5, mg - .5, W * c + 1, FH * c + 1);
+  return { c, mg };
+}
+
+'use strict';
+/* ============================================================
+   Copper golem storage room, 40 x 34 x 15 (+ roof slab).
+   x 0-39 west to east, z 0-33 north to south, y 0-14 up (y 15 is the roof slab).
+
+   5 levels, 3 blocks apart. Level k starts at b = 3k:
+     y b      floor slab under the aisle; bottom chest row beside it   (golem reaches: 1 below)
+     y b+1    aisle cell the golem stands in; middle chest row          (same level)
+     y b+2    aisle headroom; top chest row                             (1 above)
+     y b+3    next level's floor slab = this level's ceiling
+
+   x 0-2    hall (3 wide, whole length), ladders at both ends
+   x 3-38   11 aisles side by side, each 3 wide (chest column, aisle, chest column)
+   Each aisle is cut into 7 pods of 4 cells by closed fence gates (x 3, 8, ... 33).
+   ============================================================ */
+const LEVELS = 5, PITCH = 3, AISLES = 11, PODS = 7;
+const podX = p => 4 + 5 * p;            // first aisle cell of pod p
+const gateX = p => 3 + 5 * p;           // gate in front of pod p
+
+function buildStorage() {
+  const M = new Model(), ST = 'stone', SS = 'smooth_stone';
+  for (let k = 0; k < LEVELS; k++) {
+    const b = PITCH * k;
+    M.fill(0, b, 0, 39, b, 33, SS);                         // floor slab
+    M.fill(3, b + 1, 0, 39, b + 2, 33, ST);                 // solid block for the aisle area, carved below
+    for (let j = 0; j < AISLES; j++) {
+      const z0 = 3 * j, za = z0 + 1;
+      M.clear(3, b + 1, za, 37, b + 2, za);                 // aisle, 2 high
+      for (let p = 0; p < PODS; p++) {
+        const xs = podX(p), gx = gateX(p);
+        M.set(gx, b + 1, za, 'fence_gate');
+        M.set(gx, b + 1, z0, 'sea_lantern');                // light in the divider column
+        // left column (z0): input stack + 3 spare barrels, then the first 3 destination chests
+        for (let dx = 0; dx < 2; dx++) {
+          M.set(xs + dx, b + 1, z0, 'copper_chest');
+          M.set(xs + dx, b, z0, 'barrel'); M.set(xs + dx, b + 2, z0, 'barrel');
+        }
+        for (let y = b; y <= b + 2; y++) for (let dx = 2; dx < 4; dx++) M.set(xs + dx, y, z0, 'chest');
+        // right column (z0 + 2): 6 destination chests
+        for (let y = b; y <= b + 2; y++) for (let dx = 0; dx < 4; dx++) M.set(xs + dx, y, z0 + 2, 'chest');
+        M.set(xs, b + 1, za, 'golem', { h: .98 });
+      }
+    }
+    // hall: ladders at both ends, holes through the floor slabs
+    for (const z of [0, 33]) { M.clear(0, b, z, 0, b, z); for (let y = b; y <= b + 2; y++) M.set(0, y, z, 'ladder'); }
+    for (const z of [4, 10, 16, 22, 28]) M.set(1, b + 3 > 15 ? 15 : b + 3, z, 'sea_lantern');
+  }
+  M.fill(0, 15, 0, 39, 15, 33, SS);                        // roof slab
+  for (const z of [4, 10, 16, 22, 28]) M.set(1, 15, z, 'sea_lantern');
+  M.clear(0, 0, 33, 0, 0, 33); M.set(0, 0, 33, SS); M.clear(0, 0, 0, 0, 0, 0); M.set(0, 0, 0, SS);   // ground floor stays closed
+  M.set(0, 1, 16, 'door'); M.set(0, 2, 16, 'door');
+  // labels for the plans
+  for (let k = 0; k < LEVELS; k++) {
+    const y = PITCH * k + 1;
+    M.note(y, 1, 16.5, 'Hall', { s: 12 });
+    M.note(y, 0, 1, 'Ladder', { s: 8 }); M.note(y, 0, 32, 'Ladder', { s: 8 });
+    M.note(y, 2.5, 1, 'Gate', { s: 8 });
+    M.note(y, podX(0) + 1.5, 2, 'Pod 1', { s: 9 }); M.note(y, podX(1) + 1.5, 2, 'Pod 2', { s: 9 });
+    M.note(y, gateX(1), 17.5, 'Gate', { s: 8 });
+  }
+  M.note(1, 0, 16.5, 'Entrance', { s: 9 });
+  return M;
+}
+
+'use strict';
+const M = buildStorage();
+const $ = (s, r) => (r || document).querySelector(s);
+const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h !== undefined) e.innerHTML = h; return e; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const nf = n => Math.round(n).toLocaleString('en-US');
+const stacks = n => { const s = Math.floor(n / 64), r = n % 64; return nf(n) + (s ? '  ·  ' + nf(s) + '×64' + (r ? '+' + r : '') : ''); };
+function swatch(key, px) { const c = document.createElement('canvas'); c.width = c.height = 16; if (px) c.style.width = c.style.height = px + 'px'; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(tex(key, 0), 0, 0); return c; }
+
+/* ---------- counts ---------- */
+const C = Object.fromEntries(M.counts());
+const PODS_TOTAL = LEVELS * AISLES * PODS;
+const destBlocks = C.chest || 0, copperBlocks = C.copper_chest || 0, barrels = C.barrel || 0;
+const destSlots = destBlocks * 27, destDoubles = destBlocks / 2;
+const allSlots = (destBlocks + copperBlocks + barrels) * 27;
+
+$('#facts').innerHTML = [
+  [nf(destSlots), 'Sorted storage slots (' + nf(destDoubles) + ' double chests)'], [nf(destSlots * 64), 'Items if every slot holds a 64-stack'],
+  [String(PODS_TOTAL), 'Pods, each with one golem and nine sorting chests'], ['5 levels', 'Aisles 1 wide, 2 high, 3 blocks apart'],
+  [nf(allSlots), 'Slots including inputs and barrels'], ['0 redstone', 'Sorting is done by the golems alone']
+].map(a => '<div class="fact"><b>' + a[0] + '</b><span>' + a[1] + '</span></div>').join('');
+
+/* ---------- rules ---------- */
+const RULES = [
+  ['Takes items from', 'Copper chests only. Visits up to 10 in a row, spends 3 s on each, takes up to 16 of the first item, idles 7 s if the chest is empty.', 'ok', 'Every pod gets its own copper input chests.'],
+  ['Puts items into', 'Chests and trapped chests that are empty or already contain that item. Barrels and shulker boxes are ignored.', 'ok', 'Chests are pre-filled with one sample of their item. Barrels are used for manual storage beside the golem.'],
+  ['Chests tried per item', 'Up to 10 (some sources say it remembers 9).', 'unc', 'Nine destination chests per pod, so every chest is tried.'],
+  ['Search area', '±32 blocks sideways, ±8 blocks up and down around the golem (a 65 × 17 × 65 box).', 'unc', 'The whole room is inside one golem’s search area. Pods are kept apart by walls and gates so the golem cannot path into another pod.'],
+  ['Vertical reach', 'Chests on its own level and one above or one below. The wiki says up to two below.', 'unc', 'Chests are stacked exactly three high: one level below, same level, one above.'],
+  ['Size', '0.49 blocks wide (reduced in snapshot 25w37a so it fits tight spaces).', 'ok', 'A 1-block-wide aisle is enough.'],
+  ['Doors', 'One source says it opens wooden and copper doors. Fence gates are not mentioned anywhere.', 'unc', 'Pods are closed with fence gates (1.5 blocks high). Test that the golem cannot cross one.'],
+  ['Oxidation', 'An unwaxed golem oxidises and turns into a statue. Waxing stops it.', 'ok', 'Wax every golem.'],
+  ['Unloaded chunks', 'Sorting stops while the chunk is not loaded.', 'ok', 'The room is 3 chunks wide. Stay in it or keep it loaded.']
+];
+$('#rulest').innerHTML = '<thead><tr><th>Rule</th><th>What the sources say</th><th>Confidence</th><th>What the room does about it</th></tr></thead><tbody>' + RULES.map(r => '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td><td class="' + (r[2] === 'ok' ? 'ok' : 'warn') + '">' + (r[2] === 'ok' ? 'Agreed' : 'Uncertain') + '</td><td>' + r[3] + '</td></tr>').join('') + '</tbody>';
+$('#srcs').innerHTML = 'Sources: <a href="https://minecraft.wiki/w/Copper_Golem">Minecraft Wiki, Copper Golem</a>; <a href="https://x.com/NovaWostra/status/1940340058869133660">search area test by Nova Wostra</a>; <a href="https://www.4netplayers.com/en/blog/minecraft/minecraft-kupfergolem-item-sortierung-ohne-redstone/">4netplayers sorting guide</a>; <a href="https://pixeltwelve.com/articles/minecraft-storage-item-sorting-guide-hoppers-copper-golems">pixeltwelve storage guide</a>; <a href="https://www.sportskeeda.com/minecraft/minecraft-bedrock-1-21-100-23-beta-preview-patch-notes-copper-golem-copper-chests">Sportskeeda patch notes</a>. I could not open the wiki directly from here, so the figures are from search summaries of those pages.';
+
+/* ---------- 3D view ---------- */
+const v3 = { minY: 0, maxY: 16, cutX: true, cutZ: false };
+const iso = $('#iso'), tb3 = $('#tb3d');
+const render3 = () => drawIso(iso, M, { minY: v3.minY, maxY: v3.maxY, cutX: v3.cutX ? 21 : undefined, cutZ: v3.cutZ ? 16 : undefined });
+const pre = [['Whole room', 0, 16]].concat([0, 1, 2, 3, 4].map(k => ['Level ' + (k + 1), PITCH * k, PITCH * k + 4]));
+const seg = el('div', 'seg'); pre.forEach(([t, a, b], i) => { const bt = el('button', '', t); bt.type = 'button'; bt.setAttribute('aria-pressed', String(i === 0)); bt.onclick = () => { v3.minY = a; v3.maxY = b; seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === bt))); render3(); }; seg.appendChild(bt); });
+const mkTog = (t, k) => { const b = el('button', 'tog', t); b.type = 'button'; b.setAttribute('aria-pressed', String(v3[k])); b.onclick = () => { v3[k] = !v3[k]; b.setAttribute('aria-pressed', String(v3[k])); render3(); }; return b; };
+tb3.append(seg, mkTog('Cut away east half', 'cutX'), mkTog('Cut away south half', 'cutZ'));
+render3();
+['copper_chest', 'chest', 'barrel', 'fence_gate', 'ladder', 'sea_lantern', 'smooth_stone', 'stone'].forEach(k => { const s = el('span'); s.appendChild(swatch(k)); s.appendChild(document.createTextNode(BL[k].name)); $('#legend3d').appendChild(s); });
+$('#legend3d').appendChild(el('span', '', 'Orange pillars are the copper golems.'));
+
+/* ---------- pod diagrams ---------- */
+const PX = podX(0), PZ = 3, PY = 1;      // aisle 1, pod 1, level 1 as the sample pod
+function drawA() {
+  const cv = $('#dgA'), s = 62, mg = 14, W = 6 * s + 2 * mg, H = 3 * s + 2 * mg; cv.width = W; cv.height = H; const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  g.fillStyle = '#12171b'; g.fillRect(0, 0, W, H);
+  for (let i = 0; i < 6; i++) for (let r = 0; r < 3; r++) {
+    const x = PX - 1 + i, z = PZ + r, b = M.get(x, PY, z), px = mg + i * s, py = mg + r * s;
+    g.fillStyle = '#1b242b'; g.fillRect(px, py, s, s);
+    if (b) { g.drawImage(tex(b.m, (i + r) & 3), px, py, s, s); }
+    g.strokeStyle = 'rgba(0,0,0,.45)'; g.strokeRect(px + .5, py + .5, s - 1, s - 1);
+  }
+  g.font = '700 12px "IBM Plex Sans", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  const lab = (i, r, w, t, c) => { const cx = mg + (i + w / 2) * s, cy = mg + (r + .5) * s; g.lineWidth = 3.5; g.lineJoin = 'round'; g.strokeStyle = 'rgba(8,12,16,.92)'; t.split('\n').forEach((tt, k, a) => { g.strokeText(tt, cx, cy + (k - (a.length - 1) / 2) * 14); g.fillStyle = c || '#fff'; g.fillText(tt, cx, cy + (k - (a.length - 1) / 2) * 14); }); };
+  lab(1, 0, 2, 'INPUT\ncopper + 4 barrels'); lab(3, 0, 2, 'D1 ×3'); lab(1, 2, 2, 'D2 ×3'); lab(3, 2, 2, 'D3 ×3');
+  lab(0, 1, 1, 'GATE'); lab(5, 1, 1, 'GATE'); lab(1.5, 1, 1, 'golem', '#ffb27a'); lab(2.5, 1, 2, 'aisle 4 cells', '#9fb0b8');
+}
+function drawB() {
+  const cv = $('#dgB'), s = 72, mg = 16, W = 3 * s + 2 * mg + 250, H = 5 * s + 2 * mg + 20; cv.width = W; cv.height = H; const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  g.fillStyle = '#12171b'; g.fillRect(0, 0, W, H);
+  const X = i => mg + i * s, Y = r => mg + r * s;        // r 0 = ceiling slab ... 4 = floor slab under the next level
+  const draw = (i, r, key) => g.drawImage(tex(key, (i + r) & 3), X(i), Y(r), s, s);
+  for (let i = 0; i < 3; i++) draw(i, 0, 'smooth_stone');                       // ceiling slab (b+3)
+  const rows = [['barrel', 'chest'], ['copper_chest', 'chest'], ['barrel', 'chest']];   // top, middle, bottom (b+2, b+1, b)
+  rows.forEach((rw, r) => { draw(0, r + 1, rw[0]); draw(2, r + 1, rw[1]); });
+  draw(1, 3, 'smooth_stone');                                                    // aisle floor
+  draw(0, 4, 'stone'); draw(1, 4, 'smooth_stone'); draw(2, 4, 'stone');
+  g.fillStyle = '#17222a'; g.fillRect(X(1), Y(1), s, 2 * s);
+  g.fillStyle = '#e08a4f'; const gw = .49 * s, gh = .98 * s; g.fillRect(X(1) + (s - gw) / 2, Y(3) - gh, gw, gh); g.fillStyle = '#7a3a1a'; g.fillRect(X(1) + (s - gw) / 2 + 4, Y(3) - gh + 8, 5, 5); g.fillRect(X(1) + (s + gw) / 2 - 9, Y(3) - gh + 8, 5, 5);
+  g.strokeStyle = '#ffd24a'; g.lineWidth = 1.5; g.setLineDash([5, 4]); g.strokeRect(X(0) - 2, Y(1) - 2, 3 * s + 4, 3 * s + 4); g.setLineDash([]);
+  g.font = '600 12px "IBM Plex Sans", sans-serif'; g.fillStyle = '#c8d2d6'; g.textAlign = 'left';
+  const tx = X(3) + 14; g.fillText('slab = ceiling of this level', tx, Y(0) + 20);
+  g.fillStyle = '#ffd24a'; g.fillText('+1 row: one above the golem', tx, Y(1) + 20); g.fillText('0 row: same level as the golem', tx, Y(2) + 20); g.fillText('−1 row: one below the golem', tx, Y(3) + 20);
+  g.fillStyle = '#c8d2d6'; g.fillText('floor slab = ceiling of the', tx, Y(4) + 14); g.fillText('level below', tx, Y(4) + 30);
+  g.fillText('Aisle: 1 wide, 2 high', X(0) + 4, H - 6);
+}
+drawA(); drawB();
+$('#podtext').appendChild(el('div', 'card', '<h3>Per pod</h3><table><tbody><tr><td>Destination chests</td><td>9 doubles = 486 slots</td></tr><tr><td>Input</td><td>1 double copper chest = 54 slots</td></tr><tr><td>Barrels (manual)</td><td>4 = 108 slots</td></tr><tr><td>Golems</td><td>1, waxed</td></tr><tr><td>Gates</td><td>1 (the pod has one gate in front of it)</td></tr><tr><td>Item frames</td><td>9, one on each destination chest</td></tr></tbody></table>'));
+$('#podtext2').appendChild(el('div', 'card', '<h3>Why it is built like this</h3><ul class="plain"><li><b>Nine destinations.</b> The golem tries about ten chests per item. With nine, it always tries every chest in the pod, so an item with a home always finds it.</li><li><b>Sealed pod.</b> The golem searches the whole room, but it can only walk to chests it can path to. Gates and the solid ends stop it leaving, so it never sees another pod’s chests.</li><li><b>Three high.</b> The golem reaches one level up and one level down, so the three-row stack is the most it can use. A fourth row would be unreachable.</li><li><b>Barrels.</b> The golem ignores them, so they hold whatever you do not want sorted.</li></ul>'));
+
+/* ---------- layers ---------- */
+const lyInfo = y => {
+  if (y === 15) return ['Roof slab', 'Smooth stone roof with five sea lanterns in the hall. Nothing else.'];
+  const k = Math.floor(y / 3), r = y % 3, lvl = 'Level ' + (k + 1);
+  if (r === 0) return [lvl + ', floor slab and bottom row', 'Smooth stone under the aisles and the hall. The chest columns on this layer are the −1 row: bottom barrels of each input stack and the lowest destination chests. The hall has two ladder holes.'];
+  if (r === 1) return [lvl + ', golem walking level and middle row', 'The golem walks on this layer. The aisles are the open strips, closed by fence gates every five cells. The middle chest row holds the copper input chests (orange), the other destinations, and a sea lantern in each divider wall. Orange pillars mark the golems.'];
+  return [lvl + ', aisle headroom and top row', 'The top chest row (+1 row): top barrels of each input stack and the highest destination chests. The aisle is open above the gates, but a golem cannot climb over them.'];
+};
+const ly = $('#ly'), plan = $('#plan'); let lyGrid = false, pinfo;
+const drawL = () => { const y = +ly.value; $('#lyv').textContent = y; pinfo = drawLayer(plan, M, y, { grid: lyGrid }); const t = $('#laytext'); t.innerHTML = ''; const i = lyInfo(y); t.appendChild(el('div', 'card', '<h3>Layer ' + y + '</h3><b>' + esc(i[0]) + '</b><p style="margin-top:6px">' + esc(i[1]) + '</p>')); const c = {}; for (let z = 0; z < FD; z++) for (let x = 0; x < FW; x++) { const b = M.v[y][z][x]; if (b && !BL[b.m].virtual) c[b.m] = (c[b.m] || 0) + 1; } const ent = Object.entries(c).sort((a, b) => b[1] - a[1]); const card = el('div', 'card', '<h3>Blocks on this layer</h3>'); const g = el('div', 'mats'); ent.forEach(([k, n]) => { const r = el('div', 'mat'); r.style.gridTemplateColumns = '18px minmax(0,1fr) 70px'; r.appendChild(swatch(k, 18)); r.appendChild(el('span', '', esc(BL[k].name))); r.appendChild(el('span', 'n', nf(n))); g.appendChild(r); }); card.appendChild(g); t.appendChild(card); };
+ly.oninput = drawL; $('#lyg').onclick = e => { lyGrid = !lyGrid; e.currentTarget.setAttribute('aria-pressed', String(lyGrid)); drawL(); };
+plan.addEventListener('mousemove', e => { const r = plan.getBoundingClientRect(), s = plan.width / r.width, x = Math.floor(((e.clientX - r.left) * s - pinfo.mg) / pinfo.c), z = Math.floor(((e.clientY - r.top) * s - pinfo.mg) / pinfo.c), y = +ly.value; const b = M.get(x, y, z); $('#ro').textContent = (x >= 0 && z >= 0 && x < FW && z < FD) ? 'x ' + x + ', y ' + y + ', z ' + z + '  ·  ' + (b ? BL[b.m].name : 'air') : ''; });
+drawL();
+
+/* ---------- section ---------- */
+let ax = 'x'; const secC = $('#sec'), slr = $('#sl'); const memo = { x: 6, z: 4 };
+const drawS = () => { $('#slv').textContent = slr.value; memo[ax] = +slr.value; drawSection(secC, M, ax, +slr.value); };
+slr.oninput = drawS;
+document.querySelectorAll('#axseg button').forEach(b => b.onclick = () => { ax = b.dataset.ax; document.querySelectorAll('#axseg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); slr.max = ax === 'x' ? FW - 1 : FD - 1; slr.value = memo[ax]; drawS(); });
+drawS();
+
+/* ---------- capacity ---------- */
+const rowsCap = [
+  ['Levels', LEVELS + ' (3 blocks apart, 15 high in total)'], ['Aisles per level', String(AISLES)], ['Pods per aisle', String(PODS)], ['Pods and golems', nf(PODS_TOTAL)],
+  ['Destination chest blocks', nf(destBlocks) + ' (' + nf(destDoubles) + ' double chests)'], ['Destination slots', nf(destSlots)],
+  ['Input copper chest blocks', nf(copperBlocks) + ' (' + nf(copperBlocks * 27) + ' slots)'], ['Barrels', nf(barrels) + ' (' + nf(barrels * 27) + ' slots)'],
+  ['Items in destinations, 64-stacks', nf(destSlots * 64)], ['Items, 16-stacks', nf(destSlots * 16)], ['Items, unstackables', nf(destSlots)],
+  ['Distinct item types supported', nf(PODS_TOTAL * 9) + ' chests, each primed with one or more types']
+];
+$('#capt').innerHTML = '<tbody>' + rowsCap.map(r => '<tr><td>' + r[0] + '</td><td class="mono">' + r[1] + '</td></tr>').join('') + '</tbody>';
+const counts = M.counts(), mx = counts[0][1], mg = $('#mats');
+counts.forEach(([k, n]) => { const r = el('div', 'mat'); r.appendChild(swatch(k, 18)); r.appendChild(el('span', '', esc(BL[k].name))); r.appendChild(el('div', 'bar', '<i style="width:' + Math.max(2, n / mx * 100) + '%"></i>')); r.appendChild(el('span', 'n', stacks(n))); mg.appendChild(r); });
+$('#matn').innerHTML = 'Also per pod: 1 copper block and 1 carved pumpkin to make the golem, 1 honeycomb to wax it, 9 item frames. For ' + PODS_TOTAL + ' pods that is ' + nf(PODS_TOTAL) + ' copper blocks, ' + nf(PODS_TOTAL) + ' pumpkins, ' + nf(PODS_TOTAL) + ' honeycombs and ' + nf(PODS_TOTAL * 9) + ' item frames. Chests are counted as single blocks. Build the room in stages: the pods work one at a time.';
+
+/* ---------- build and tests ---------- */
+['Clear a 40 × 34 × 15 volume. Put floor slabs at layers 0, 3, 6, 9 and 12 across the whole footprint, and the roof slab at layer 15.',
+ 'Hall (x 0–2): leave layers b+1 and b+2 open on each level. Cut a ladder hole at both ends (z 0 and z 33) through each floor slab and run ladders from layer 1 to 14. Put the five sea lanterns in each ceiling slab.',
+ 'Fill x 3–39 solid on layers b+1 and b+2, then carve the 11 aisles: x 3 to 37, one cell wide, centred on z 1, 4, 7 … 31. Leave x 38 and 39, and z 33, solid.',
+ 'Do one pod completely and test it (right). A pod is aisle cells x 4–7, with the gate at x 3 and the next gate at x 8.',
+ 'Inside the pod: left column, first double: copper chests in the middle row, barrels above and below. Left column, second double and all of the right column: normal chests, three high.',
+ 'Make the golem: a copper block in the middle row of the left input cell, a carved pumpkin on top. Per the wiki the block becomes a copper chest and the pumpkin becomes the golem. Wax it, then finish the top row of the input stack.',
+ 'Prime each destination chest with one sample of its item, put an item frame showing it on the front, and put a sign or frame on the input stack for the category.',
+ 'Repeat the pod 6 more times along the aisle, then copy the aisle across and up. You do not have to build all 385 pods at once.'
+].forEach(t => $('#steps').appendChild(el('li', '', esc(t))));
+$('#testcol').appendChild(el('div', 'callout', '<b>Test one pod before building the rest.</b><ul class="plain" style="margin-top:6px"><li><b>Gate.</b> Open the gate and let the golem out, then close it. Does it stay in? If it walks through, replace the gates with solid blocks and a trapdoor you flip by hand.</li><li><b>Reach.</b> Put one item in the top row, the middle row and the bottom row. Does the golem fill all three rows? If not, drop the bottom row.</li><li><b>Chest count.</b> Make 9 destinations, then 10, then 12. Note where an item with a home stops being found.</li><li><b>Neighbours.</b> Build two pods side by side. Does one golem ever walk to the other pod’s chests?</li><li><b>Unknown item.</b> Drop an item no chest holds. The golem should keep it and retry every 7 s. If that jams the pod, add one empty chest at the far end as a catch-all.</li><li><b>Throughput.</b> Time 64 items through one golem. One golem per pod means a full stack takes a few trips.</li></ul>'));
+
+</script>
+
+</body>
+</html>

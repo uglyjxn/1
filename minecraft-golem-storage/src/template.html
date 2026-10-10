@@ -1,0 +1,142 @@
+<title>Copper Golem Storage Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: masthead and capacity numbers, the golem rules, explorable views (3D, layers, section), pod blueprint, build guide */
+:root {
+  --bg: #eceee9; --panel: #ffffff; --fg: #182019; --muted: #5a665e; --line: #cfd5cd;
+  --accent: #2f5bd3; --accent-fg: #ffffff; --chip: #e2e6df; --stage: #12171b; --stage-line: #2b343a;
+  --ok: #1f7a43; --bad: #b3261e; --warn: #9a6200;
+  --font-display: "Pixelify Sans", "Courier New", monospace;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0f1316; --panel: #171c20; --fg: #e5ebe6; --muted: #98a59d; --line: #2a3237; --accent: #8aa9ff; --accent-fg: #0b1020; --chip: #232b30; --ok: #66d28f; --bad: #ff8a80; --warn: #f0b95a; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0f1316; --panel: #171c20; --fg: #e5ebe6; --muted: #98a59d; --line: #2a3237; --accent: #8aa9ff; --accent-fg: #0b1020; --chip: #232b30; --ok: #66d28f; --bad: #ff8a80; --warn: #f0b95a; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--font-body); margin: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 72px; }
+h1, h2, h3 { margin: 0; font-weight: 600; text-wrap: balance; }
+h1 { font: 700 clamp(34px, 6vw, 56px)/1 var(--font-display); }
+h2 { font: 700 clamp(22px, 3.4vw, 30px)/1.1 var(--font-display); }
+h3 { font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; font-weight: 600; }
+p { margin: 0; }
+section { margin-top: 52px; }
+.sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; margin-bottom: 14px; }
+.sec-h p { color: var(--muted); max-width: 70ch; flex-basis: 100%; }
+.lede { max-width: 66ch; color: var(--muted); margin-top: 12px; font-size: 16px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 22px; }
+.fact { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; min-width: 0; }
+.fact b { display: block; font: 600 20px/1.2 var(--font-mono); font-variant-numeric: tabular-nums; }
+.fact span { color: var(--muted); font-size: 12.5px; }
+.flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.flow li { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px; counter-increment: s; }
+.flow li::before { content: counter(s); font: 700 22px/1 var(--font-display); color: var(--accent); display: block; margin-bottom: 6px; }
+.flow b { display: block; margin-bottom: 2px; }
+.flow span { color: var(--muted); font-size: 13.5px; }
+.stage { background: var(--stage); border: 1px solid var(--stage-line); border-radius: 6px; overflow: hidden; }
+.stage canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 10px; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+.seg button, .tog { all: unset; box-sizing: border-box; padding: 5px 11px; font-size: 13px; cursor: pointer; color: var(--fg); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"], .tog[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.tog { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.seg button:focus-visible, .tog:focus-visible, input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.slider { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+.slider input { width: min(260px, 50vw); accent-color: var(--accent); }
+.slider b { font-family: var(--font-mono); color: var(--fg); min-width: 2.2em; }
+.two { display: grid; grid-template-columns: minmax(0, 592px) minmax(0, 1fr); gap: 26px; align-items: start; }
+.col { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px; min-width: 0; }
+.card h3 { margin-bottom: 6px; }
+.small { font-size: 12.5px; color: var(--muted); }
+.mono { font-family: var(--font-mono); font-size: 12.5px; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.tw { overflow-x: auto; }
+.ok { color: var(--ok); font-weight: 600; } .bad { color: var(--bad); font-weight: 600; } .warn { color: var(--warn); font-weight: 600; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.steps li::marker { color: var(--accent); font-weight: 700; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend canvas { width: 16px; height: 16px; image-rendering: pixelated; border-radius: 2px; }
+.mats { display: grid; gap: 4px; }
+.mat { display: grid; grid-template-columns: 18px minmax(120px, 190px) minmax(0, 1fr) 118px; gap: 10px; align-items: center; font-size: 13px; }
+.mat canvas { width: 18px; height: 18px; image-rendering: pixelated; border-radius: 2px; }
+.mat .bar { height: 8px; background: var(--chip); border-radius: 2px; overflow: hidden; }
+.mat .bar i { display: block; height: 100%; background: var(--accent); }
+.mat .n { font: 400 12px var(--font-mono); text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.callout { border-left: 3px solid var(--warn); background: var(--panel); border-radius: 0 6px 6px 0; padding: 12px 14px; }
+.callout b { color: var(--warn); }
+ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+@media (max-width: 960px) { .two { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .mat { grid-template-columns: 18px minmax(0, 1fr) 90px; } .mat .bar { grid-column: 2 / 4; grid-row: 2; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Copper Golem Storage Room</h1>
+    <p class="lede">A 40 × 34 × 15 room, planned only for function. Five levels of 1-wide aisles with chests stacked three high on both sides, cut into sealed pods of nine sorting chests, each with its own golem and its own input chest. The layout follows what the golem can reach, and every number below is counted from the same model as the pictures.</p>
+    <div class="facts" id="facts"></div>
+  </header>
+
+  <section id="rules">
+    <div class="sec-h"><h2>What the golem can and cannot do</h2><p>These rules decide every dimension in the room. The rows marked uncertain differ between sources, so the design avoids depending on them where it can.</p></div>
+    <div class="tw"><table id="rulest"></table></div>
+    <p class="small" style="margin-top:8px" id="srcs"></p>
+  </section>
+
+  <section id="v3d">
+    <div class="sec-h"><h2>3D view</h2><p>Pick a level to look at it on its own, or show the whole room. The cut buttons slice it open.</p></div>
+    <div class="toolbar" id="tb3d"></div>
+    <div class="stage"><canvas id="iso" aria-label="Isometric view of the storage room"></canvas></div>
+    <div class="legend" id="legend3d"></div>
+  </section>
+
+  <section id="pod">
+    <div class="sec-h"><h2>One pod</h2><p>The repeating unit. Everything else is this pod copied 385 times.</p></div>
+    <div class="two">
+      <div><h3>Top view, one level</h3><div class="stage"><canvas id="dgA"></canvas></div><p class="small" style="margin-top:8px">One level, middle row. D1 to D3 are double chests, each stacked three high, so nine destinations. The input is a double copper chest with barrels above and below. A sea lantern sits in the divider wall beside each gate.</p></div>
+      <div><h3>Looking along the aisle</h3><div class="stage"><canvas id="dgB"></canvas></div></div>
+    </div>
+    <div class="two" style="margin-top:18px"><div class="col" id="podtext"></div><div class="col" id="podtext2"></div></div>
+  </section>
+
+  <section id="layers">
+    <div class="sec-h"><h2>Layer by layer</h2><p>Top-down plan of one height level at a time. Layers 1, 4, 7, 10 and 13 are the golem walking levels, one per storage level.</p></div>
+    <div class="toolbar"><div class="slider"><label for="ly">Layer</label><input id="ly" type="range" min="0" max="15" step="1" value="1"><b id="lyv">1</b></div><button class="tog" id="lyg" aria-pressed="false" type="button">5-block grid</button></div>
+    <div class="two">
+      <div><div class="stage"><canvas id="plan"></canvas></div><div class="mono" id="ro" style="margin-top:8px;color:var(--muted);min-height:1.5em">Hover the plan for coordinates and the block.</div></div>
+      <div class="col" id="laytext"></div>
+    </div>
+  </section>
+
+  <section id="sect">
+    <div class="sec-h"><h2>Cross-section</h2><p>A vertical slice. The default cuts across all eleven aisles and all five levels inside the first pod column.</p></div>
+    <div class="toolbar"><div class="seg" id="axseg"><button type="button" data-ax="x" aria-pressed="true">Across the aisles</button><button type="button" data-ax="z" aria-pressed="false">Along one aisle</button></div><div class="slider"><label for="sl">Slice at</label><input id="sl" type="range" min="0" max="39" step="1" value="6"><b id="slv">6</b></div></div>
+    <div class="stage"><canvas id="sec"></canvas></div>
+  </section>
+
+  <section id="cap">
+    <div class="sec-h"><h2>Capacity</h2></div>
+    <div class="two">
+      <div class="card"><h3>Totals, counted from the model</h3><div class="tw"><table id="capt"></table></div></div>
+      <div class="col"><div class="card"><h3>Material list</h3><div class="mats" id="mats"></div><p class="small" style="margin-top:8px" id="matn"></p></div></div>
+    </div>
+  </section>
+
+  <section id="build">
+    <div class="sec-h"><h2>Build order and first tests</h2></div>
+    <div class="two">
+      <ol class="steps" id="steps"></ol>
+      <div class="col" id="testcol"></div>
+    </div>
+  </section>
+</div>
+
+<!--SCRIPT-->
