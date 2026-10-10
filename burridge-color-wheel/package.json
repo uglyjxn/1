@@ -1,0 +1,9 @@
+{
+  "name": "burridge-color-wheel",
+  "productName": "Burridge Color Wheel",
+  "version": "1.0.0",
+  "description": "Desktop color wheel simulator (12-hue painter's wheel with tints, shades, harmonies and mixing)",
+  "main": "main.js",
+  "scripts": { "start": "electron ." },
+  "devDependencies": { "electron": "^33.0.0" }
+}
