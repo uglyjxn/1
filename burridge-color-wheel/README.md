@@ -11,7 +11,6 @@ npm start
 
 - Click a wedge or a sketch, or drag the diamond, to choose the dominant color; focal and spice colors follow.
   The rule reproduces all six printed examples.
-- Shift-click a wedge to pick a mix partner; the mixer says whether the mix stays bright or crosses the line.
 
 ## Where the numbers come from
 Everything was measured from a scan of the printed wheel, not eyeballed:
@@ -25,5 +24,3 @@ Everything was measured from a scan of the printed wheel, not eyeballed:
 
 ## Known differences
 - Fonts are look-alikes, not the printer's Futura / Myriad.
-- The paint-mix swatch is an approximation of paint mixing.
-- Red and Blue-Green sit on the section lines in the print, so they count as belonging to both neighboring sections.

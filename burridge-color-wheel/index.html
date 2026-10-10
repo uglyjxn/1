@@ -28,9 +28,6 @@
   #spinner.drag { transition:none; cursor:grabbing; }
   svg text { font-family:var(--f); font-weight:700; pointer-events:none; }
   .it { font-style:italic; }
-  #picked { position:absolute; left:0; bottom:6px; width:210px; }
-  #picked .ln { font-size:12.5px; line-height:1.5; }
-  .sw { display:inline-block; width:10px; height:10px; margin-right:5px; border:1px solid rgba(0,0,0,.3); }
   h3 { font:700 15px/1 var(--n); margin:12px 0 10px; padding-bottom:6px; border-bottom:1.5px solid #111; }
   .ex { display:grid; grid-template-columns:repeat(6,1fr); gap:16px; }
   .ex .card { cursor:pointer; } .ex img { width:100%; display:block; margin-bottom:8px; outline:2px solid transparent; }
@@ -44,14 +41,6 @@
   .text li::before { content:counter(n) ".  "; }
   .col3 { position:relative; } .sig { margin-top:70px; font:800 38px/1.02 var(--f); letter-spacing:-.005em; } .sig small { display:block; font:400 13px/1.3 var(--n); margin-top:8px; }
   .isbn { font:700 8px/1.3 var(--f); letter-spacing:.14em; margin-top:34px; } .isbn img { display:block; width:133px; margin-top:2px; }
-  .studio { margin-top:30px; border-top:1.5px solid #111; padding-top:4px; display:grid; grid-template-columns:1fr 1fr; gap:26px; font-family:Arial,sans-serif; }
-  .mix { display:flex; gap:5px; margin:6px 0; } .mix i { flex:1; height:40px; border:1px solid rgba(0,0,0,.25); }
-  input[type=range] { width:100%; } label { font-size:12px; }
-  .verdict { font-weight:700; } .small { font-size:12px; color:#444; }
-  button { font:inherit; font-size:13px; padding:4px 12px; border:1px solid #111; background:#fff; border-radius:3px; cursor:pointer; margin-right:6px; }
-  button:hover { background:#111; color:#fff; }
-  #toast { position:fixed; bottom:12px; left:14px; background:#111; color:#fff; padding:5px 12px; border-radius:3px; opacity:0; transition:opacity .2s; }
-  #toast.show { opacity:1; }
 </style>
 </head>
 <body>
@@ -61,10 +50,9 @@
   <div class="sub">Painting with Four Colors</div>
   <div class="stage">
     <svg id="wheel" viewBox="-380 -380 760 760" role="img" aria-label="Goof-Proof color wheel"></svg>
-    <div id="picked" title="Your current four colors (click a line to copy its hex)"></div>
   </div>
 
-  <h3>Paint Sketch Examples <span class="small" style="font-weight:400">(click one to set the wheel)</span></h3>
+  <h3>Paint Sketch Examples <span class="small" style="font-weight:400">(click one to set the wheel, or turn the diamond)</span></h3>
   <div class="ex" id="examples"></div>
 
   <div class="text">
@@ -99,22 +87,7 @@
     </div>
   </div>
 
-  <div class="studio">
-    <div>
-      <h3>Studio</h3>
-      <p><button id="spin">Spin the diamond</button><label><input type="checkbox" id="marks"> mark the four colors on the wheel</label></p>
-      <p class="small">Click a wedge or a sketch, or drag the hub's diamond, to choose the dominant color. The four colors are listed at the lower left of the wheel (click one to copy its hex). Shift-click a wedge to pick a mix partner.</p>
-    </div>
-    <div>
-      <h3>Mix <span id="mixlabel" style="font-weight:400"></span></h3>
-      <div class="mix"><i id="mA"></i><i id="mR"></i><i id="mB"></i></div>
-      <input type="range" id="ratio" min="0" max="100" value="50">
-      <div class="verdict" id="verdict"></div><div class="small" id="mixhex"></div>
-      <p class="small">Mix colors are an estimate of paint mixing; the bright/dull verdict follows the wheel's four sections.</p>
-    </div>
-  </div>
 </div>
-<div id="toast"></div>
 <script src="palette.js"></script>
 <script src="app.js"></script>
 </body>
