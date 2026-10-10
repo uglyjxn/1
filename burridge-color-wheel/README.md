@@ -8,6 +8,7 @@ the six paint sketches, and the full printed text.
 npm install
 npm start
 ```
+Or double-click `start.bat` (Windows) / run `./start.sh` (macOS, Linux). Needs Node.js.
 
 - Click a wedge or a sketch, or drag the diamond, to choose the dominant color; focal and spice colors follow.
   The rule reproduces all six printed examples.
